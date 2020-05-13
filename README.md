@@ -1,6 +1,11 @@
 # flutter_face_mlkit
 
-A new Flutter package project.
+See how to activate camera plugin [here](https://pub.dev/packages/camera)
+See how to setup ML Vision [here](https://pub.dev/packages/firebase_ml_vision)
+
+See how to add google service to your App [here](https://codelabs.developers.google.com/codelabs/flutter-firebase/#6)
+
+For more info see example folder
 
 ## Getting Started
 
