@@ -73,13 +73,18 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
+  
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    var ovalRect = Rect.fromLTWH(((size.width / 2) - (250 / 2)), 50, 250, 350);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('MakeCapture'),
       ),
       body: SelfieAutocapture(
+        ovalRect: ovalRect,
         infoBlockBuilder: (BuildContext context) =>
             Center(child: Text('Поместите лицо в овал', style: TextStyle(
               fontSize: 18,
