@@ -214,7 +214,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
       key: _keyBuilder,
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
+        if (snapshot.connectionState == ConnectionState.done && _controller?.value?.isInitialized == true) {
           // If the Future is complete, display the preview.
           final Size imageSize = Size(
             _controller.value.previewSize.height,
@@ -279,11 +279,21 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
               )
             ],
           );
-        } else {
-          return Center(
-              child:
-                  CircularProgressIndicator()); // Otherwise, display a loading indicator.
-        }
+        } 
+        if (snapshot.hasError) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              ],
+            );
+          }
+          return SizedBox(height: 0, width: 0);
       },
     ));
   }

@@ -43,9 +43,13 @@ class _CameraViewState extends State<CameraView> {
     _cameraController = CameraController(cameraDesc,
         Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.high);
 
-    _cameraInitializer = _cameraController.initialize();
+    try {
+      _cameraInitializer = _cameraController.initialize();
 
-    await _cameraInitializer;
+      await _cameraInitializer;
+    } catch (err) {
+      print(err);
+    }
     if (!mounted) {
       return;
     }
@@ -102,7 +106,8 @@ class _CameraViewState extends State<CameraView> {
       child: FutureBuilder(
         future: _cameraInitializer,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              _cameraController?.value?.isInitialized == true) {
             return Stack(
               children: <Widget>[
                 Transform.scale(
@@ -125,9 +130,13 @@ class _CameraViewState extends State<CameraView> {
           }
           if (snapshot.hasError) {
             return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Center(
-                  child: Text('Произошла ошибка при инициализации камеры'),
+                  child: Text(
+                    'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
+                    textAlign: TextAlign.center,
+                  ),
                 )
               ],
             );
