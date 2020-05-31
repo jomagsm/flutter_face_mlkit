@@ -50,7 +50,6 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
 
   void _onCapturePhoto(String path) {
     if (widget.onCapturePhoto != null) {
-      
       widget.onCapturePhoto(path);
     }
   }
@@ -107,13 +106,29 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
     _faceSubject = BehaviorSubject<Face>();
     _faceSubject.stream
         .where((Face face) {
+          // if (face != null) {
+          //   var faceAngle = face.headEulerAngleY;
+          //   var facePercentage = faceAngle * 100.0 / 50.0;
+          //   return facePercentage > 80.0;
+          // }
+          // return false;
           return face != null && _isFaceInOval(face);
         })
         .bufferTime(Duration(seconds: 1))
         .listen((faces) async {
           if (_isTakePhoto) return;
           var face = faces?.length ?? 0;
-          
+
+          // if (face > 0) {
+          //   var faceItem = faces[0];
+          //   var faceAngle = faceItem.headEulerAngleY;
+          //   faceAngle = faceAngle > 50.0 ? 50.0 : faceAngle;
+          //   {
+          //     print(
+          //         'FaceCalculating angle = $faceAngle; % = ${faceAngle * 100.0 / 50.0}');
+          //   }
+          // }
+
           if (face >= 2) {
             _isTakePhoto = true;
             try {
@@ -135,8 +150,10 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
                   await FlutterImageCompress.compressAndGetFile(
                       imgPath, imgCopressedPath,
                       quality: 75);
-              
+
               LoadingOverlay.removeLoadingOverlay();
+
+               
 
               _onCapturePhoto(compressedFile.path);
             } catch (err) {
@@ -173,7 +190,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
       return;
     }
     await _initializeControllerFuture;
-    
+
     await _controller.startImageStream((CameraImage image) {
       if (!mounted) return;
       if (_isDetecting) return;
@@ -214,7 +231,8 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
       key: _keyBuilder,
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done && _controller?.value?.isInitialized == true) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            _controller?.value?.isInitialized == true) {
           // If the Future is complete, display the preview.
           final Size imageSize = Size(
             _controller.value.previewSize.height,
@@ -279,21 +297,21 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
               )
             ],
           );
-        } 
+        }
         if (snapshot.hasError) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Center(
-                  child: Text(
-                    'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              ],
-            );
-          }
-          return SizedBox(height: 0, width: 0);
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: Text(
+                  'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
+                  textAlign: TextAlign.center,
+                ),
+              )
+            ],
+          );
+        }
+        return SizedBox(height: 0, width: 0);
       },
     ));
   }
