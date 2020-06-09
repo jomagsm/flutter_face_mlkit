@@ -124,7 +124,7 @@ class _LivenessComponentState extends State<LivenessComponent>
       face.boundingBox.right * scaleX,
       face.boundingBox.bottom * scaleY,
     );
-    if (_facePercentage < -10 && _facePercentage > 10) {
+    if (_facePercentage < -5 && _facePercentage > 5) {
       return false;
     }
     if (faceRect.left > _customOvalRect.left &&
