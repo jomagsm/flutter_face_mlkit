@@ -184,7 +184,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
         await ScannerUtils.getCamera(CameraLensDirection.front);
 
     _controller = CameraController(_cameraDescription,
-        Platform.isIOS ? ResolutionPreset.low : ResolutionPreset.high);
+        Platform.isIOS ? ResolutionPreset.low : ResolutionPreset.medium);
     _initializeControllerFuture = _controller.initialize();
     if (!mounted) {
       return;
