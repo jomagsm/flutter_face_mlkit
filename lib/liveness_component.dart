@@ -124,13 +124,23 @@ class _LivenessComponentState extends State<LivenessComponent>
       face.boundingBox.right * scaleX,
       face.boundingBox.bottom * scaleY,
     );
-    if (_facePercentage < -5 && _facePercentage > 5) {
+
+    if (_facePercentage < -5 || _facePercentage > 5) {
       return false;
     }
-    if (faceRect.left > _customOvalRect.left &&
-        faceRect.top > _customOvalRect.top &&
-        faceRect.bottom < _customOvalRect.bottom &&
-        faceRect.right < _customOvalRect.right) {
+    print('-------------------$_facePercentage----------------');
+    print('FACE CONFIRMING = ' +
+        faceRect.toString() +
+        ' - ' +
+        _customOvalRect.toString());
+    // if (faceRect.left >= _customOvalRect.left - 30 &&
+    //     faceRect.top >= _customOvalRect.top - 30 &&
+    //     faceRect.bottom <= _customOvalRect.bottom + 30 &&
+    //     faceRect.right <= _customOvalRect.right + 30) {
+    if (faceRect.left >= 0 &&
+        faceRect.top >= _customOvalRect.top - 30 &&
+        faceRect.bottom <= _customOvalRect.bottom + 30 &&
+        faceRect.right <= absoluteImageSize.width) {
       return true;
     } else {
       return false;
@@ -303,7 +313,8 @@ class _LivenessComponentState extends State<LivenessComponent>
         (dynamic results) {
           if (!mounted) return;
 
-          var faces = results as List<Face>;
+          List<Face> faces = results as List<Face>;
+          print('Faces = ' + faces.length.toString());
           try {
             var _face = faces.first;
             _faceProcessing(_face);
