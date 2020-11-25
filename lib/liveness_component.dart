@@ -109,10 +109,10 @@ class _LivenessComponentState extends State<LivenessComponent>
   bool _isFaceInOval(Face face) {
     var _faceAngle = face.headEulerAngleY;
     _faceAngle = _faceAngle > 50.0 ? 50.0 : _faceAngle;
-    
+
     double _facePercentage = _faceAngle * 100.0 / 50.0;
     print('Face angle percentage = $_facePercentage');
-    
+
     RenderBox box = _keyBuilder.currentContext.findRenderObject();
     final Size size = box.size;
     final Size absoluteImageSize = Size(
@@ -127,7 +127,6 @@ class _LivenessComponentState extends State<LivenessComponent>
       face.boundingBox.right * scaleX,
       face.boundingBox.bottom * scaleY,
     );
-
 
     if (_facePercentage < -5.0 || _facePercentage > 5.0) {
       return false;
@@ -172,9 +171,21 @@ class _LivenessComponentState extends State<LivenessComponent>
 
       var _faceAngle = 0.0;
       if (widget.livenessType == FaceLivenessType.FACE_ANGLE_RIGHT) {
-        _faceAngle = Platform.isAndroid ? _faceAngleX < 0.0 ? _faceAngleX : 0.0 : _faceAngleX > 0.0 ? _faceAngleX : 0.0;
+        _faceAngle = Platform.isAndroid
+            ? _faceAngleX < 0.0
+                ? _faceAngleX
+                : 0.0
+            : _faceAngleX > 0.0
+                ? _faceAngleX
+                : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_LEFT) {
-        _faceAngle = Platform.isAndroid ? _faceAngleX > 0.0 ? _faceAngleX : 0.0 : _faceAngleX < 0.0 ? _faceAngleX : 0.0;
+        _faceAngle = Platform.isAndroid
+            ? _faceAngleX > 0.0
+                ? _faceAngleX
+                : 0.0
+            : _faceAngleX < 0.0
+                ? _faceAngleX
+                : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
         _faceAngle = _faceAngleY > 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
@@ -297,7 +308,7 @@ class _LivenessComponentState extends State<LivenessComponent>
         await ScannerUtils.getCamera(CameraLensDirection.front);
 
     _controller = CameraController(_cameraDescription,
-        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.medium);
+        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.high);
     _initializeControllerFuture = _controller.initialize();
     if (!mounted) {
       return;
