@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -15,10 +16,10 @@ enum CameraLensType { CAMERA_FRONT, CAMERA_BACK }
 
 class CameraView extends StatefulWidget {
   final CameraLensType cameraLensType;
-  final OverlayBuilder overlayBuilder;
-  final CaptureButtonBuilder captureButtonBuilder;
-  final ValueChanged onError;
-  final ValueChanged onCapture;
+  final OverlayBuilder? overlayBuilder;
+  final CaptureButtonBuilder? captureButtonBuilder;
+  final ValueChanged? onError;
+  final ValueChanged? onCapture;
 
   CameraView(
       {this.cameraLensType = CameraLensType.CAMERA_BACK,
@@ -32,8 +33,8 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  CameraController _cameraController;
-  Future _cameraInitializer;
+  CameraController? _cameraController;
+  Future? _cameraInitializer;
   bool _isTakePhoto = false;
 
   Future<void> _initializeCamera() async {
@@ -44,7 +45,7 @@ class _CameraViewState extends State<CameraView> {
         Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.medium);
 
     try {
-      _cameraInitializer = _cameraController.initialize();
+      _cameraInitializer = _cameraController!.initialize();
 
       await _cameraInitializer;
     } catch (err) {
@@ -66,11 +67,12 @@ class _CameraViewState extends State<CameraView> {
       var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_photo.jpg';
 
       await Future.delayed(Duration(milliseconds: 300));
-      await _cameraController.takePicture(imgPath);
+      var imgFile = await _cameraController!.takePicture();
+      await imgFile.saveTo(imgPath);
       LoadingOverlay.showLoadingOverlay(context);
-      var compressedFile = await FlutterImageCompress.compressAndGetFile(
+      var compressedFile = await (FlutterImageCompress.compressAndGetFile(
           imgPath, imgCopressedPath,
-          quality: 75);
+          quality: 75) as FutureOr<File>);
 
       LoadingOverlay.removeLoadingOverlay();
       _isTakePhoto = false;
@@ -107,15 +109,15 @@ class _CameraViewState extends State<CameraView> {
         future: _cameraInitializer,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
-              _cameraController?.value?.isInitialized == true) {
+              _cameraController?.value.isInitialized == true) {
             return Stack(
               children: <Widget>[
                 Transform.scale(
-                  scale: _cameraController.value.aspectRatio / deviceRatio,
+                  scale: _cameraController!.value.aspectRatio / deviceRatio,
                   child: Center(
                     child: AspectRatio(
-                      aspectRatio: _cameraController.value.aspectRatio,
-                      child: CameraPreview(_cameraController),
+                      aspectRatio: _cameraController!.value.aspectRatio,
+                      child: CameraPreview(_cameraController!),
                     ),
                   ),
                 ),
@@ -149,7 +151,7 @@ class _CameraViewState extends State<CameraView> {
 
   Widget _overlayBuilder(context) {
     if (widget.overlayBuilder != null) {
-      return widget.overlayBuilder(context);
+      return widget.overlayBuilder!(context);
     } else {
       return SizedBox(
         height: 0,
@@ -160,7 +162,7 @@ class _CameraViewState extends State<CameraView> {
 
   Widget _captureButtonBuilder(BuildContext context, VoidCallback onCapture) {
     if (widget.captureButtonBuilder != null) {
-      return widget.captureButtonBuilder(context, onCapture);
+      return widget.captureButtonBuilder!(context, onCapture);
     } else {
       return SizedBox(
         height: 0,
@@ -171,13 +173,13 @@ class _CameraViewState extends State<CameraView> {
 
   void _onError(error) {
     if (widget.onError != null) {
-      widget.onError(error);
+      widget.onError!(error);
     }
   }
 
   void _onCapture(path) {
     if (widget.onCapture != null) {
-      widget.onCapture(path);
+      widget.onCapture!(path);
     }
   }
 

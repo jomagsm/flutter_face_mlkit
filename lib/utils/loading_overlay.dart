@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 
 class LoadingOverlay {
-  static OverlayEntry _instanceOfEntry;
+  static OverlayEntry? _instanceOfEntry;
 
-  static void showLoadingOverlay(BuildContext context, {String text}) {
+  static void showLoadingOverlay(BuildContext context, {String? text}) {
 
     removeLoadingOverlay();
     _instanceOfEntry = OverlayEntry(
@@ -52,12 +52,12 @@ class LoadingOverlay {
                 decoration: BoxDecoration(color: Color(0x0f000000)),
               ),
             ));
-    Overlay.of(context).insert(_instanceOfEntry);
+    Overlay.of(context)!.insert(_instanceOfEntry!);
   }
 
   static void removeLoadingOverlay() {
     if (_instanceOfEntry != null) {
-      _instanceOfEntry.remove();
+      _instanceOfEntry!.remove();
       _instanceOfEntry = null;
     }
   }

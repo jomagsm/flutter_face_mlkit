@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -25,18 +26,18 @@ enum FaceLivenessType {
 }
 
 class LivenessComponent extends StatefulWidget {
-  final Rect ovalRect;
+  final Rect? ovalRect;
 
-  final ValueChanged<double> onLivenessPercentChange;
-  final ValueChanged<FaceStepType> onStepChanged;
-  final ValueChanged<String> onCapturePhoto;
+  final ValueChanged<double>? onLivenessPercentChange;
+  final ValueChanged<FaceStepType>? onStepChanged;
+  final ValueChanged<String?>? onCapturePhoto;
 
   final FaceLivenessType livenessType;
 
-  final Widget Function(BuildContext) infoBlockBuilder;
+  final Widget Function(BuildContext)? infoBlockBuilder;
 
   LivenessComponent(
-      {Key key,
+      {Key? key,
       this.ovalRect,
       this.livenessType = FaceLivenessType.FACE_ANGLE_LEFT,
       this.onLivenessPercentChange,
@@ -52,46 +53,46 @@ class LivenessComponent extends StatefulWidget {
 class _LivenessComponentState extends State<LivenessComponent>
     with SingleTickerProviderStateMixin {
   GlobalKey _keyBuilder = GlobalKey();
-  Future<void> _initializeControllerFuture;
-  CameraController _controller;
+  Future<void>? _initializeControllerFuture;
+  CameraController? _controller;
 
-  CameraDescription _cameraDescription;
+  late CameraDescription _cameraDescription;
   bool _isDetecting = false;
   bool _isTakePhoto = false;
-  FaceDetector _faceDetector;
-  Rect _customOvalRect;
+  FaceDetector? _faceDetector;
+  Rect? _customOvalRect;
 
-  Face _face;
+  Face? _face;
 
-  Path _ovalPath;
-  Paint _ovalPaint;
-  AnimationController _successImageAnimationController;
-  Animation<double> _successImageAnimation;
+  Path? _ovalPath;
+  Paint? _ovalPaint;
+  AnimationController? _successImageAnimationController;
+  Animation<double>? _successImageAnimation;
   bool _isAnimRun = false;
 
   FaceStepType _faceStepType = FaceStepType.FACE_STEP_FACEDETECTION;
 
   void _onPercentChange(double percent) {
     if (widget.onLivenessPercentChange != null) {
-      widget.onLivenessPercentChange(percent);
+      widget.onLivenessPercentChange!(percent);
     }
   }
 
   void _onStepChange(FaceStepType type) {
     if (widget.onStepChanged != null) {
-      widget.onStepChanged(type);
+      widget.onStepChanged!(type);
     }
   }
 
-  void _onCapturePhoto(String path) {
+  void _onCapturePhoto(String? path) {
     if (widget.onCapturePhoto != null) {
-      widget.onCapturePhoto(path);
+      widget.onCapturePhoto!(path);
     }
   }
 
   Widget _infoBlockBuilder(BuildContext context) {
     if (widget.infoBlockBuilder != null) {
-      return widget.infoBlockBuilder(context);
+      return widget.infoBlockBuilder!(context);
     } else {
       return SizedBox(height: 0, width: 0);
     }
@@ -107,17 +108,17 @@ class _LivenessComponentState extends State<LivenessComponent>
   }
 
   bool _isFaceInOval(Face face) {
-    var _faceAngle = face.headEulerAngleY;
+    var _faceAngle = face.headEulerAngleY!;
     _faceAngle = _faceAngle > 50.0 ? 50.0 : _faceAngle;
 
     double _facePercentage = _faceAngle * 100.0 / 50.0;
     print('Face angle percentage = $_facePercentage');
 
-    RenderBox box = _keyBuilder.currentContext.findRenderObject();
+    RenderBox box = _keyBuilder.currentContext!.findRenderObject() as RenderBox;
     final Size size = box.size;
     final Size absoluteImageSize = Size(
-      _controller.value.previewSize.height,
-      _controller.value.previewSize.width,
+      _controller!.value.previewSize!.height,
+      _controller!.value.previewSize!.width,
     );
     final double scaleX = size.width / absoluteImageSize.width;
     final double scaleY = size.height / absoluteImageSize.height;
@@ -141,8 +142,8 @@ class _LivenessComponentState extends State<LivenessComponent>
     //     faceRect.bottom <= _customOvalRect.bottom + 30 &&
     //     faceRect.right <= _customOvalRect.right + 30) {
     if (faceRect.left >= 0 &&
-        faceRect.top >= _customOvalRect.top - 30 &&
-        faceRect.bottom <= _customOvalRect.bottom + 30 &&
+        faceRect.top >= _customOvalRect!.top - 30 &&
+        faceRect.bottom <= _customOvalRect!.bottom + 30 &&
         faceRect.right <= absoluteImageSize.width) {
       return true;
     } else {
@@ -169,27 +170,27 @@ class _LivenessComponentState extends State<LivenessComponent>
       print(
           '_FACE X = $_faceAngleX; _FACE Z = $_faceAngleY; _FACE LEYE = $_faceEyeLeft; _FACE_REYE = $_faceEyeRight;');
 
-      var _faceAngle = 0.0;
+      double? _faceAngle = 0.0;
       if (widget.livenessType == FaceLivenessType.FACE_ANGLE_RIGHT) {
         _faceAngle = Platform.isAndroid
-            ? _faceAngleX < 0.0
+            ? _faceAngleX! < 0.0
                 ? _faceAngleX
                 : 0.0
-            : _faceAngleX > 0.0
+            : _faceAngleX! > 0.0
                 ? _faceAngleX
                 : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_LEFT) {
         _faceAngle = Platform.isAndroid
-            ? _faceAngleX > 0.0
+            ? _faceAngleX! > 0.0
                 ? _faceAngleX
                 : 0.0
-            : _faceAngleX < 0.0
+            : _faceAngleX! < 0.0
                 ? _faceAngleX
                 : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
-        _faceAngle = _faceAngleY > 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
+        _faceAngle = _faceAngleY! > 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
       } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
-        _faceAngle = _faceAngleY < 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
+        _faceAngle = _faceAngleY! < 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
       }
 
       _faceAngle = _faceAngle.abs();
@@ -220,9 +221,9 @@ class _LivenessComponentState extends State<LivenessComponent>
     if (face != null && _isFaceInOval(face) == true) {
       _isTakePhoto = true;
       try {
-        await _controller.stopImageStream();
+        await _controller!.stopImageStream();
 
-        _successImageAnimationController.forward();
+        _successImageAnimationController!.forward();
         setState(() => _isAnimRun = true);
 
         var tmpDir = await getTemporaryDirectory();
@@ -231,14 +232,15 @@ class _LivenessComponentState extends State<LivenessComponent>
         var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
 
         await Future.delayed(Duration(milliseconds: 300));
-        await _controller.takePicture(imgPath);
+        var imgFile = await _controller!.takePicture();
+        await imgFile.saveTo(imgPath);
         LoadingOverlay.showLoadingOverlay(context);
-        var compressedFile = await FlutterImageCompress.compressAndGetFile(
+        var compressedFile = await (FlutterImageCompress.compressAndGetFile(
             imgPath, imgCopressedPath,
-            quality: 75);
+            quality: 75) as FutureOr<File>);
 
         try {
-          List<Face> _faces = await _faceDetector
+          List<Face> _faces = await _faceDetector!
               .processImage(FirebaseVisionImage.fromFile(compressedFile));
           var _faceForCheck = _faces.first;
           if (_faceForCheck != null && _isFaceInOval(_faceForCheck) == true) {
@@ -286,7 +288,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     super.initState();
 
     _customOvalRect = widget.ovalRect ?? Rect.fromLTWH(50, 50, 250, 350);
-    _ovalPath = Path()..addOval(_customOvalRect);
+    _ovalPath = Path()..addOval(_customOvalRect!);
     _ovalPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
@@ -295,7 +297,7 @@ class _LivenessComponentState extends State<LivenessComponent>
         AnimationController(vsync: this, duration: Duration(milliseconds: 250));
     _successImageAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
-            parent: _successImageAnimationController,
+            parent: _successImageAnimationController!,
             curve: Curves.slowMiddle));
 
     _faceDetector = FirebaseVision.instance.faceDetector();
@@ -309,13 +311,13 @@ class _LivenessComponentState extends State<LivenessComponent>
 
     _controller = CameraController(_cameraDescription,
         Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.high);
-    _initializeControllerFuture = _controller.initialize();
+    _initializeControllerFuture = _controller!.initialize();
     if (!mounted) {
       return;
     }
     await _initializeControllerFuture;
 
-    await _controller.startImageStream((CameraImage image) {
+    await _controller!.startImageStream((CameraImage image) {
       if (!mounted) return;
       if (_isDetecting) return;
 
@@ -323,7 +325,7 @@ class _LivenessComponentState extends State<LivenessComponent>
 
       ScannerUtils.detect(
         image: image,
-        detectInImage: _faceDetector.processImage,
+        detectInImage: _faceDetector!.processImage,
         imageRotation: _cameraDescription.sensorOrientation,
       ).then(
         (dynamic results) {
@@ -344,7 +346,7 @@ class _LivenessComponentState extends State<LivenessComponent>
   @override
   void dispose() {
     LoadingOverlay.removeLoadingOverlay();
-    _faceDetector?.close()?.then((_) {
+    _faceDetector?.close().then((_) {
       _controller?.dispose();
     });
     _successImageAnimationController?.dispose();
@@ -361,19 +363,19 @@ class _LivenessComponentState extends State<LivenessComponent>
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done &&
-            _controller?.value?.isInitialized == true) {
+            _controller?.value.isInitialized == true) {
           final Size imageSize = Size(
-            _controller.value.previewSize.height,
-            _controller.value.previewSize.width,
+            _controller!.value.previewSize!.height,
+            _controller!.value.previewSize!.width,
           );
           return Stack(
             children: <Widget>[
               Transform.scale(
-                  scale: _controller.value.aspectRatio / deviceRatio,
+                  scale: _controller!.value.aspectRatio / deviceRatio,
                   child: Center(
                     child: AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: CameraPreview(_controller),
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: CameraPreview(_controller!),
                     ),
                   )),
               _isShowOvalArea()
@@ -384,31 +386,31 @@ class _LivenessComponentState extends State<LivenessComponent>
                           clipper: OvalClipper(_customOvalRect),
                           child: Transform.scale(
                               scale:
-                                  _controller.value.aspectRatio / deviceRatio,
+                                  _controller!.value.aspectRatio / deviceRatio,
                               child: Center(
                                   child: Container(color: Colors.black54)))))
                   : SizedBox(height: 0, width: 0),
               Positioned(
-                  top: _customOvalRect.bottom + 40,
+                  top: _customOvalRect!.bottom + 40,
                   left: 0,
                   right: 0,
                   child: Container(child: _infoBlockBuilder(context))),
               _isShowAnimationArea()
                   ? AnimatedBuilder(
-                      animation: _successImageAnimationController,
+                      animation: _successImageAnimationController!,
                       builder: (context, child) {
                         return Positioned(
                             child: Opacity(
                                 opacity: _successImageAnimation == null
                                     ? 0.0
-                                    : _successImageAnimation.value,
+                                    : _successImageAnimation!.value,
                                 child: Icon(
                                   Icons.check_circle_outline,
                                   color: Colors.green,
                                   size: 52,
                                 )),
-                            top: _customOvalRect.center.dy - 26,
-                            left: _customOvalRect.center.dx - 26);
+                            top: _customOvalRect!.center.dy - 26,
+                            left: _customOvalRect!.center.dx - 26);
                       })
                   : SizedBox(height: 0, width: 0),
               _isShowAnimationArea()
@@ -416,13 +418,13 @@ class _LivenessComponentState extends State<LivenessComponent>
                       top: 0,
                       left: 0,
                       child: AnimatedDrawing.paths(
-                        <Path>[_ovalPath],
-                        paints: <Paint>[_ovalPaint],
+                        <Path>[_ovalPath!],
+                        paints: <Paint>[_ovalPaint!],
                         lineAnimation: LineAnimation.oneByOne,
                         animationCurve: Curves.easeInQuad,
                         scaleToViewport: false,
-                        width: _customOvalRect.width,
-                        height: _customOvalRect.height,
+                        width: _customOvalRect!.width,
+                        height: _customOvalRect!.height,
                         duration: Duration(milliseconds: 400),
                         run: _isAnimRun,
                         onFinish: () => setState(() => _isAnimRun = false),
