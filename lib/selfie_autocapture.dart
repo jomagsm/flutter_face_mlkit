@@ -133,13 +133,13 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
               file.saveTo(imgPath);
               LoadingOverlay.showLoadingOverlay(context);
               var compressedFile =
-                  await (FlutterImageCompress.compressAndGetFile(
-                          imgPath, imgCopressedPath, quality: 75)
-                      as FutureOr<File>);
+                  await FlutterImageCompress.compressAndGetFile(
+                      imgPath, imgCopressedPath,
+                      quality: 75);
 
               LoadingOverlay.removeLoadingOverlay();
 
-              _onCapturePhoto(compressedFile.path);
+              _onCapturePhoto(compressedFile!.path);
             } catch (err) {
               LoadingOverlay.removeLoadingOverlay();
               print(err);

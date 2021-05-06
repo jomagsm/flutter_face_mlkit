@@ -235,13 +235,13 @@ class _LivenessComponentState extends State<LivenessComponent>
         var imgFile = await _controller!.takePicture();
         await imgFile.saveTo(imgPath);
         LoadingOverlay.showLoadingOverlay(context);
-        var compressedFile = await (FlutterImageCompress.compressAndGetFile(
+        var compressedFile = await FlutterImageCompress.compressAndGetFile(
             imgPath, imgCopressedPath,
-            quality: 75) as FutureOr<File>);
+            quality: 75);
 
         try {
           List<Face> _faces = await _faceDetector!
-              .processImage(FirebaseVisionImage.fromFile(compressedFile));
+              .processImage(FirebaseVisionImage.fromFile(compressedFile!));
           var _faceForCheck = _faces.first;
           if (_faceForCheck != null && _isFaceInOval(_faceForCheck) == true) {
             _onCapturePhoto(compressedFile.path);

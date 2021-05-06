@@ -70,13 +70,13 @@ class _CameraViewState extends State<CameraView> {
       var imgFile = await _cameraController!.takePicture();
       await imgFile.saveTo(imgPath);
       LoadingOverlay.showLoadingOverlay(context);
-      var compressedFile = await (FlutterImageCompress.compressAndGetFile(
+      var compressedFile = await FlutterImageCompress.compressAndGetFile(
           imgPath, imgCopressedPath,
-          quality: 75) as FutureOr<File>);
+          quality: 75);
 
       LoadingOverlay.removeLoadingOverlay();
       _isTakePhoto = false;
-      _onCapture(compressedFile.path);
+      _onCapture(compressedFile!.path);
     } catch (err) {
       _isTakePhoto = false;
       _onError(err);
