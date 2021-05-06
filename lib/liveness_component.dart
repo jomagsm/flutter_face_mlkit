@@ -370,14 +370,7 @@ class _LivenessComponentState extends State<LivenessComponent>
           );
           return Stack(
             children: <Widget>[
-              Transform.scale(
-                  scale: _controller!.value.aspectRatio / deviceRatio,
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: CameraPreview(_controller!),
-                    ),
-                  )),
+              Center(child: CameraPreview(_controller!)),
               _isShowOvalArea()
                   ? CustomPaint(
                       foregroundPainter: FaceDetectorPainter(
@@ -420,6 +413,7 @@ class _LivenessComponentState extends State<LivenessComponent>
                       child: AnimatedDrawing.paths(
                         <Path>[_ovalPath!],
                         paints: <Paint>[_ovalPaint!],
+                        animationOrder: PathOrder.byLength(),
                         lineAnimation: LineAnimation.oneByOne,
                         animationCurve: Curves.easeInQuad,
                         scaleToViewport: false,

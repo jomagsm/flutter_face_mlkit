@@ -225,14 +225,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
 
           return Stack(
             children: <Widget>[
-              Transform.scale(
-                  scale: _controller!.value.aspectRatio / deviceRatio,
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: CameraPreview(_controller!),
-                    ),
-                  )),
+              Center(child: CameraPreview(_controller!)),
               CustomPaint(
                   foregroundPainter:
                       FaceDetectorPainter(imageSize, _face, _customOvalRect),

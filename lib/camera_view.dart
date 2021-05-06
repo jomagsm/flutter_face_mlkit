@@ -104,6 +104,7 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
+
     return Container(
       child: FutureBuilder(
         future: _cameraInitializer,
@@ -112,15 +113,7 @@ class _CameraViewState extends State<CameraView> {
               _cameraController?.value.isInitialized == true) {
             return Stack(
               children: <Widget>[
-                Transform.scale(
-                  scale: _cameraController!.value.aspectRatio / deviceRatio,
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: _cameraController!.value.aspectRatio,
-                      child: CameraPreview(_cameraController!),
-                    ),
-                  ),
-                ),
+                Center(child: CameraPreview(_cameraController!)),
                 _overlayBuilder(context),
                 Positioned(
                     left: 0,
