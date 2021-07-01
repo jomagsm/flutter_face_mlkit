@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:drawing_animation/drawing_animation.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_face_mlkit/utils/face_detector_painter.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum FaceStepType {
@@ -241,9 +241,9 @@ class _LivenessComponentState extends State<LivenessComponent>
 
         try {
           List<Face> _faces = await _faceDetector!
-              .processImage(FirebaseVisionImage.fromFile(compressedFile!));
+              .processImage(InputImage.fromFile(compressedFile!));
           var _faceForCheck = _faces.first;
-          if (_faceForCheck != null && _isFaceInOval(_faceForCheck) == true) {
+          if (_isFaceInOval(_faceForCheck) == true) {
             _onCapturePhoto(compressedFile.path);
           } else {
             _onCapturePhoto(null);
@@ -300,7 +300,7 @@ class _LivenessComponentState extends State<LivenessComponent>
             parent: _successImageAnimationController!,
             curve: Curves.slowMiddle));
 
-    _faceDetector = FirebaseVision.instance.faceDetector();
+    _faceDetector = Vision.instance.faceDetector();
 
     _initializeCamera();
   }
