@@ -9,7 +9,7 @@ import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum FaceStepType {
@@ -241,7 +241,7 @@ class _LivenessComponentState extends State<LivenessComponent>
 
         try {
           List<Face> _faces = await _faceDetector!
-              .processImage(InputImage.fromFile(compressedFile!));
+              .processImage(GoogleVisionImage.fromFile(compressedFile!));
           var _faceForCheck = _faces.first;
           if (_isFaceInOval(_faceForCheck) == true) {
             _onCapturePhoto(compressedFile.path);
@@ -300,7 +300,7 @@ class _LivenessComponentState extends State<LivenessComponent>
             parent: _successImageAnimationController!,
             curve: Curves.slowMiddle));
 
-    _faceDetector = Vision.instance.faceDetector();
+    _faceDetector = GoogleVision.instance.faceDetector();
 
     _initializeCamera();
   }

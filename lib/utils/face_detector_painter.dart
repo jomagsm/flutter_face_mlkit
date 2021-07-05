@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class FaceDetectorPainter extends CustomPainter {

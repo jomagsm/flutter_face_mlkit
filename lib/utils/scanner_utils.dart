@@ -8,7 +8,7 @@ import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_ml_vision/google_ml_vision.dart';
 
 class ScannerUtils {
   ScannerUtils._();
@@ -23,15 +23,14 @@ class ScannerUtils {
 
   static Future<dynamic> detect({
     required CameraImage image,
-    required Future<dynamic> Function(InputImage image) detectInImage,
+    required Future<dynamic> Function(GoogleVisionImage image) detectInImage,
     required int imageRotation,
   }) async {
     print(image.planes.length);
     return detectInImage(
-      InputImage.fromBytes(
-        bytes: _concatenatePlanes(image.planes),
-        inputImageData:
-            _buildMetaData(image, _rotationIntToImageRotation(imageRotation)),
+      GoogleVisionImage.fromBytes(
+        _concatenatePlanes(image.planes),
+        _buildMetaData(image, _rotationIntToImageRotation(imageRotation)),
       ),
     );
   }
@@ -44,17 +43,17 @@ class ScannerUtils {
     return allBytes.done().buffer.asUint8List();
   }
 
-  static InputImageData _buildMetaData(
+  static GoogleVisionImageMetadata _buildMetaData(
     CameraImage image,
-    InputImageRotation rotation,
+    ImageRotation rotation,
   ) {
-    return InputImageData(
-      inputImageFormat: InputImageFormatMethods.fromRawValue(image.format.raw)!,
+    return GoogleVisionImageMetadata(
+      rawFormat: image.format.raw,
       size: Size(image.width.toDouble(), image.height.toDouble()),
-      imageRotation: rotation,
+      rotation: rotation,
       planeData: image.planes.map(
         (Plane plane) {
-          return InputImagePlaneMetadata(
+          return GoogleVisionImagePlaneMetadata(
             bytesPerRow: plane.bytesPerRow,
             height: plane.height,
             width: plane.width,
@@ -64,17 +63,17 @@ class ScannerUtils {
     );
   }
 
-  static InputImageRotation _rotationIntToImageRotation(int rotation) {
+  static ImageRotation _rotationIntToImageRotation(int rotation) {
     switch (rotation) {
       case 0:
-        return InputImageRotation.Rotation_0deg;
+        return ImageRotation.rotation0;
       case 90:
-        return InputImageRotation.Rotation_90deg;
+        return ImageRotation.rotation90;
       case 180:
-        return InputImageRotation.Rotation_180deg;
+        return ImageRotation.rotation180;
       default:
         assert(rotation == 270);
-        return InputImageRotation.Rotation_270deg;
+        return ImageRotation.rotation270;
     }
   }
 }
