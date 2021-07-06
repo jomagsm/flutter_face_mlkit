@@ -67,9 +67,11 @@ packages:
   drawing_animation:
     dependency: "direct main"
     description:
-      path: drawing_animation
-      relative: true
-    source: path
+      path: "."
+      ref: "feature/null-safety-migration"
+      resolved-ref: "70946ab942dc24248b9e47e03023fb67e34df58c"
+      url: "https://github.com/sn1cka/drawing_animation.git"
+    source: git
     version: "1.0.0"
   fake_async:
     dependency: transitive

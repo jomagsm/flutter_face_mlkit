@@ -74,9 +74,11 @@ packages:
   drawing_animation:
     dependency: transitive
     description:
-      path: "../drawing_animation"
-      relative: true
-    source: path
+      path: "."
+      ref: "feature/null-safety-migration"
+      resolved-ref: "70946ab942dc24248b9e47e03023fb67e34df58c"
+      url: "https://github.com/sn1cka/drawing_animation.git"
+    source: git
     version: "1.0.0"
   fake_async:
     dependency: transitive
@@ -149,13 +151,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  google_ml_kit:
+  google_ml_vision:
     dependency: transitive
     description:
-      name: google_ml_kit
+      name: google_ml_vision
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.0"
+    version: "0.0.6"
   js:
     dependency: transitive
     description:
