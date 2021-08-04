@@ -21,7 +21,7 @@ dependencies:
       ref: feature/null-safety-migration
 
   flutter_image_compress: ^1.0.0
-  camera: ^0.8.1
+  camera: ^0.8.1+7
 
 dev_dependencies:
   flutter_test:
