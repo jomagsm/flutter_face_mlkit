@@ -4,7 +4,7 @@
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-$FirebaseSDKVersion = '6.33.0'
+$FirebaseSDKVersion = '8.5.0'
 
 project 'Runner', {
   'Debug' => :debug,
@@ -42,4 +42,4 @@ post_install do |installer|
   end
 end
 
-pod 'Firebase/MLVisionFaceModel'
+pod 'GoogleMLKit/FaceDetection'

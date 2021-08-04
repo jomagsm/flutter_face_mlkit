@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  firebase_core: ^1.1.0  
+  firebase_core: ^1.4.0
   flutter_face_mlkit: 
     path: ../  
 
