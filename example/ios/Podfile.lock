@@ -1,6 +1,4 @@
 PODS:
-  - camera (0.0.1):
-    - Flutter
   - Firebase/CoreOnly (8.5.0):
     - FirebaseCore (= 8.5.0)
   - firebase_core (1.4.0):
@@ -16,6 +14,8 @@ PODS:
     - GoogleUtilities/Logger (~> 7.4)
     - nanopb (~> 2.30908.0)
   - Flutter (1.0.0)
+  - flutter_better_camera (0.6.0):
+    - Flutter
   - flutter_image_compress (0.0.1):
     - Flutter
     - Mantle
@@ -134,9 +134,9 @@ PODS:
     - SDWebImage/Core (~> 5.10)
 
 DEPENDENCIES:
-  - camera (from `.symlinks/plugins/camera/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
+  - flutter_better_camera (from `.symlinks/plugins/flutter_better_camera/ios`)
   - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
   - google_ml_vision (from `.symlinks/plugins/google_ml_vision/ios`)
   - GoogleMLKit/FaceDetection
@@ -172,12 +172,12 @@ SPEC REPOS:
     - SDWebImageWebPCoder
 
 EXTERNAL SOURCES:
-  camera:
-    :path: ".symlinks/plugins/camera/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: Flutter
+  flutter_better_camera:
+    :path: ".symlinks/plugins/flutter_better_camera/ios"
   flutter_image_compress:
     :path: ".symlinks/plugins/flutter_image_compress/ios"
   google_ml_vision:
@@ -186,12 +186,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider/ios"
 
 SPEC CHECKSUMS:
-  camera: 3164201dc344383e62282964016528c4f5a9ad50
   Firebase: ff8c73105b90e33e1dc6c8e5445d7adc2ccdc7c1
   firebase_core: 935dc7d6a2bef0fedb2e0942882b105b9a0194c0
   FirebaseCore: 1c1ca72483b59b17050f5b4cec4fb748425a3901
   FirebaseCoreDiagnostics: 7bf55d386f9fc690d971b70a582142321a390eb8
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  flutter_better_camera: f0dcb72bf079742d017c71b67d42324d9987fa30
   flutter_image_compress: 082f8daaf6c1b0c9fe798251c750ef0ecd98d7ae
   google_ml_vision: 3d1e02342d58810f267a2de18c20c30c4e43e5a8
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9

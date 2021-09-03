@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:drawing_animation/drawing_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/face_detector_painter.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
@@ -161,50 +161,48 @@ class _LivenessComponentState extends State<LivenessComponent>
   }
 
   Future<void> _faceLivenessStep(Face face) async {
-    if (face != null) {
-      var _faceAngleX = face.headEulerAngleY;
-      var _faceAngleY = face.headEulerAngleZ;
-      var _faceEyeLeft = face.leftEyeOpenProbability;
-      var _faceEyeRight = face.rightEyeOpenProbability;
+    var _faceAngleX = face.headEulerAngleY;
+    var _faceAngleY = face.headEulerAngleZ;
+    var _faceEyeLeft = face.leftEyeOpenProbability;
+    var _faceEyeRight = face.rightEyeOpenProbability;
 
-      print(
-          '_FACE X = $_faceAngleX; _FACE Z = $_faceAngleY; _FACE LEYE = $_faceEyeLeft; _FACE_REYE = $_faceEyeRight;');
+    print(
+        '_FACE X = $_faceAngleX; _FACE Z = $_faceAngleY; _FACE LEYE = $_faceEyeLeft; _FACE_REYE = $_faceEyeRight;');
 
-      double? _faceAngle = 0.0;
-      if (widget.livenessType == FaceLivenessType.FACE_ANGLE_RIGHT) {
-        _faceAngle = Platform.isAndroid
-            ? _faceAngleX! < 0.0
-                ? _faceAngleX
-                : 0.0
-            : _faceAngleX! > 0.0
-                ? _faceAngleX
-                : 0.0;
-      } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_LEFT) {
-        _faceAngle = Platform.isAndroid
-            ? _faceAngleX! > 0.0
-                ? _faceAngleX
-                : 0.0
-            : _faceAngleX! < 0.0
-                ? _faceAngleX
-                : 0.0;
-      } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
-        _faceAngle = _faceAngleY! > 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
-      } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
-        _faceAngle = _faceAngleY! < 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
-      }
+    double? _faceAngle = 0.0;
+    if (widget.livenessType == FaceLivenessType.FACE_ANGLE_RIGHT) {
+      _faceAngle = Platform.isAndroid
+          ? _faceAngleX! < 0.0
+              ? _faceAngleX
+              : 0.0
+          : _faceAngleX! > 0.0
+              ? _faceAngleX
+              : 0.0;
+    } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_LEFT) {
+      _faceAngle = Platform.isAndroid
+          ? _faceAngleX! > 0.0
+              ? _faceAngleX
+              : 0.0
+          : _faceAngleX! < 0.0
+              ? _faceAngleX
+              : 0.0;
+    } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
+      _faceAngle = _faceAngleY! > 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
+    } else if (widget.livenessType == FaceLivenessType.FACE_ANGLE_BOTTOM) {
+      _faceAngle = _faceAngleY! < 0.0 ? _faceAngleY * 50 / 16.0 : 0.0;
+    }
 
-      _faceAngle = _faceAngle.abs();
+    _faceAngle = _faceAngle.abs();
 
-      _faceAngle = _faceAngle > 50.0 ? 50.0 : _faceAngle;
-      double _facePercentage = _faceAngle * 100.0 / 50.0;
+    _faceAngle = _faceAngle > 50.0 ? 50.0 : _faceAngle;
+    double _facePercentage = _faceAngle * 100.0 / 50.0;
 
-      _onPercentChange(_facePercentage);
-      if (_facePercentage > 80.0) {
-        setState(() {
-          _faceStepType = FaceStepType.FACE_STEP_CAPTURING;
-          _onStepChange(_faceStepType);
-        });
-      }
+    _onPercentChange(_facePercentage);
+    if (_facePercentage > 80.0) {
+      setState(() {
+        _faceStepType = FaceStepType.FACE_STEP_CAPTURING;
+        _onStepChange(_faceStepType);
+      });
     } else {
       _onPercentChange(0);
     }
@@ -232,8 +230,7 @@ class _LivenessComponentState extends State<LivenessComponent>
         var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
 
         await Future.delayed(Duration(milliseconds: 300));
-        var imgFile = await _controller!.takePicture();
-        await imgFile.saveTo(imgPath);
+        var imgFile = await _controller!.takePicture(imgPath);
         LoadingOverlay.showLoadingOverlay(context);
         var compressedFile = await FlutterImageCompress.compressAndGetFile(
             imgPath, imgCopressedPath,
@@ -326,7 +323,7 @@ class _LivenessComponentState extends State<LivenessComponent>
       ScannerUtils.detect(
         image: image,
         detectInImage: _faceDetector!.processImage,
-        imageRotation: _cameraDescription.sensorOrientation,
+        imageRotation: _cameraDescription.sensorOrientation!,
       ).then(
         (dynamic results) {
           if (!mounted) return;
@@ -370,7 +367,10 @@ class _LivenessComponentState extends State<LivenessComponent>
           );
           return Stack(
             children: <Widget>[
-              Center(child: CameraPreview(_controller!)),
+              Center(
+                  child: AspectRatio(
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: CameraPreview(_controller!))),
               _isShowOvalArea()
                   ? CustomPaint(
                       foregroundPainter: FaceDetectorPainter(

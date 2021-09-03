@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -40,13 +40,11 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _initializeCamera() async {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
-
     _cameraController = CameraController(cameraDesc,
         Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.medium);
 
     try {
       _cameraInitializer = _cameraController!.initialize();
-
       await _cameraInitializer;
     } catch (err) {
       print(err);
@@ -67,8 +65,7 @@ class _CameraViewState extends State<CameraView> {
       var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_photo.jpg';
 
       await Future.delayed(Duration(milliseconds: 300));
-      var imgFile = await _cameraController!.takePicture();
-      await imgFile.saveTo(imgPath);
+      var imgFile = await _cameraController!.takePicture(imgPath);
       LoadingOverlay.showLoadingOverlay(context);
       var compressedFile = await FlutterImageCompress.compressAndGetFile(
           imgPath, imgCopressedPath,
@@ -104,7 +101,6 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
-
     return Container(
       child: FutureBuilder(
         future: _cameraInitializer,
@@ -113,7 +109,11 @@ class _CameraViewState extends State<CameraView> {
               _cameraController?.value.isInitialized == true) {
             return Stack(
               children: <Widget>[
-                Center(child: CameraPreview(_cameraController!)),
+                Center(
+                    child: Container(
+                        child: AspectRatio(
+                            aspectRatio: _cameraController!.value.aspectRatio,
+                            child: CameraPreview(_cameraController!)))),
                 _overlayBuilder(context),
                 Positioned(
                     left: 0,
