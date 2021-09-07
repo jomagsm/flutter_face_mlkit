@@ -58,6 +58,9 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _takePhoto() async {
     try {
       if (_isTakePhoto) return;
+      _cameraController!.setAutoFocus(true);
+      await Future.delayed(Duration(milliseconds: 200));
+      _cameraController!.setAutoFocus(false);
       _isTakePhoto = true;
       var tmpDir = await getTemporaryDirectory();
       var rStr = DateTime.now().microsecondsSinceEpoch.toString();
