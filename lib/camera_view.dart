@@ -41,7 +41,7 @@ class _CameraViewState extends State<CameraView> {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
     _cameraController = CameraController(cameraDesc,
-        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.medium);
+        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.high);
 
     try {
       _cameraInitializer = _cameraController!.initialize();
@@ -58,9 +58,9 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _takePhoto() async {
     try {
       if (_isTakePhoto) return;
-      _cameraController!.setAutoFocus(true);
-      await Future.delayed(Duration(milliseconds: 200));
-      _cameraController!.setAutoFocus(false);
+      if(Platform.isAndroid) {
+        await _cameraController!.setAutoFocus(false);
+      }
       _isTakePhoto = true;
       var tmpDir = await getTemporaryDirectory();
       var rStr = DateTime.now().microsecondsSinceEpoch.toString();
@@ -68,7 +68,12 @@ class _CameraViewState extends State<CameraView> {
       var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_photo.jpg';
 
       await Future.delayed(Duration(milliseconds: 300));
-      var imgFile = await _cameraController!.takePicture(imgPath);
+      await _cameraController!.takePicture(imgPath);
+
+      if (Platform.isAndroid) {
+        await _cameraController!.setAutoFocus(true);
+      }
+
       LoadingOverlay.showLoadingOverlay(context);
       var compressedFile = await FlutterImageCompress.compressAndGetFile(
           imgPath, imgCopressedPath,
