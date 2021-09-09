@@ -152,12 +152,10 @@ class _LivenessComponentState extends State<LivenessComponent>
   }
 
   Future<void> _faceDetectingStep(Face face) async {
-    if (face != null) {
-      setState(() {
-        _faceStepType = FaceStepType.FACE_STEP_LIVENESS;
-        _onStepChange(_faceStepType);
-      });
-    }
+    setState(() {
+      _faceStepType = FaceStepType.FACE_STEP_LIVENESS;
+      _onStepChange(_faceStepType);
+    });
   }
 
   Future<void> _faceLivenessStep(Face face) async {
@@ -210,13 +208,11 @@ class _LivenessComponentState extends State<LivenessComponent>
 
   Future<void> _faceCapturingStep(Face face) async {
     if (_isTakePhoto == true) return;
-    if (face != null) {
-      setState(() {
-        _face = face;
-      });
-    }
+    setState(() {
+      _face = face;
+    });
 
-    if (face != null && _isFaceInOval(face) == true) {
+    if (_isFaceInOval(face) == true) {
       _isTakePhoto = true;
       try {
         await _controller!.stopImageStream();
@@ -230,7 +226,7 @@ class _LivenessComponentState extends State<LivenessComponent>
         var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
 
         await Future.delayed(Duration(milliseconds: 300));
-        var imgFile = await _controller!.takePicture(imgPath);
+        await _controller!.takePicture(imgPath);
         LoadingOverlay.showLoadingOverlay(context);
         var compressedFile = await FlutterImageCompress.compressAndGetFile(
             imgPath, imgCopressedPath,

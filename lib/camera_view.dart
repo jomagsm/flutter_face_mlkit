@@ -40,8 +40,7 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _initializeCamera() async {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
-    _cameraController = CameraController(cameraDesc,
-        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.high);
+    _cameraController = CameraController(cameraDesc, ResolutionPreset.ultraHigh);
 
     try {
       _cameraInitializer = _cameraController!.initialize();
@@ -58,9 +57,6 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _takePhoto() async {
     try {
       if (_isTakePhoto) return;
-      if(Platform.isAndroid) {
-        await _cameraController!.setAutoFocus(false);
-      }
       _isTakePhoto = true;
       var tmpDir = await getTemporaryDirectory();
       var rStr = DateTime.now().microsecondsSinceEpoch.toString();

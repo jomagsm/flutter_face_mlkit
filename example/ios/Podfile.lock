@@ -19,6 +19,7 @@ PODS:
   - flutter_image_compress (0.0.1):
     - Flutter
     - Mantle
+    - SDWebImage
     - SDWebImageWebPCoder
   - google_ml_vision (0.0.6):
     - Flutter
@@ -128,6 +129,8 @@ PODS:
     - Flutter
   - PromisesObjC (2.0.0)
   - Protobuf (3.17.0)
+  - SDWebImage (5.11.1):
+    - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
   - SDWebImageWebPCoder (0.8.4):
     - libwebp (~> 1.0)
@@ -192,7 +195,7 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnostics: 7bf55d386f9fc690d971b70a582142321a390eb8
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_better_camera: f0dcb72bf079742d017c71b67d42324d9987fa30
-  flutter_image_compress: 082f8daaf6c1b0c9fe798251c750ef0ecd98d7ae
+  flutter_image_compress: fd2b476345226e1a10ea352fa306af95704642c1
   google_ml_vision: 3d1e02342d58810f267a2de18c20c30c4e43e5a8
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9
   GoogleMLKit: 85ffdc9641d05311c76dbba5bbf93059087be12f

@@ -1,6 +1,6 @@
 name: flutter_face_mlkit
 description: Face detector and autocapture.
-version: 2.0.2
+version: 2.0.3
 author: Andrei Hailov
 homepage:
 publish_to: none
@@ -21,7 +21,6 @@ dependencies:
       ref: feature/null-safety-migration
 
   flutter_image_compress: ^1.0.0
-#  camera: ^0.8.1+7
   flutter_better_camera: ^1.0.2+1
 
 dev_dependencies:
