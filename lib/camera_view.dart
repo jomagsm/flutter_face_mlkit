@@ -6,6 +6,7 @@ import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:path_provider/path_provider.dart';
 
 typedef Widget OverlayBuilder(BuildContext context);
@@ -20,12 +21,14 @@ class CameraView extends StatefulWidget {
   final CaptureButtonBuilder? captureButtonBuilder;
   final ValueChanged? onError;
   final ValueChanged? onCapture;
-
+  final ValueChanged? onPassportDataRecognized;
+//todo add stopper after text recognized
   CameraView(
       {this.cameraLensType = CameraLensType.CAMERA_BACK,
       this.captureButtonBuilder,
       this.overlayBuilder,
       this.onCapture,
+      this.onPassportDataRecognized,
       this.onError});
 
   @override
@@ -36,15 +39,19 @@ class _CameraViewState extends State<CameraView> {
   CameraController? _cameraController;
   Future? _cameraInitializer;
   bool _isTakePhoto = false;
+  bool _isDetecting = false;
+  final TextRecognizer _recognizer = GoogleVision.instance.textRecognizer();
 
   Future<void> _initializeCamera() async {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
-    _cameraController = CameraController(cameraDesc, ResolutionPreset.ultraHigh);
+    _cameraController = CameraController(
+        cameraDesc, ResolutionPreset.high); // todo think about compression
 
     try {
       _cameraInitializer = _cameraController!.initialize();
       await _cameraInitializer;
+
     } catch (err) {
       print(err);
     }
@@ -52,6 +59,16 @@ class _CameraViewState extends State<CameraView> {
       return;
     }
     setState(() {});
+  }
+
+  bool _isNumber(String str) {
+    try {
+      int value = int.tryParse(str)!;
+      print('INT VALUE = $value ');
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _takePhoto() async {
@@ -94,10 +111,49 @@ class _CameraViewState extends State<CameraView> {
     }
   }
 
+  startRecognizer(){
+    _cameraController!.startImageStream((image) {
+      if (_isDetecting) return;
+      _isDetecting = true;
+      ScannerUtils.detect(
+        image: image,
+        detectInImage: _recognizer.processImage,
+        imageRotation: _cameraController!.description.sensorOrientation!,
+      ).then((dynamic results) {
+        var result = (results as VisionText);
+        for (TextBlock block in result.blocks) {
+          for (TextLine line in block.lines) {
+            print(
+                'RECOGNIZED ${result.blocks.indexOf(block)} ${block.lines.indexOf(line)} ${line.text}');
+            if (line.text != null) {
+              var text = line.text!.trim();
+              if ((text.startsWith('AN') || text.startsWith('ID')) &&
+                  text.length == 9 &&
+                  _isNumber(text.substring(2, 9)))
+                print('PASSPORT SERIES AND NUMBER: $text');
+
+              // if(text.length ==14 && (text.startsWith('1') || text.startsWith('2')))
+              //   print( 'PASSPORT INN: $text');
+            }
+          }
+        }
+      }).whenComplete(() => _isDetecting = false);
+    });
+  }
+
+  disposeRecognizer() {
+    if (onPassportDataRecognized != null) {
+      _recognizer.close().then((_) {
+        _cameraController!.stopImageStream();
+        _cameraController?.dispose();
+      });
+    }
+  }
+
   @override
   void dispose() {
     LoadingOverlay.removeLoadingOverlay();
-    _cameraController?.dispose();
+    disposeRecognizer();
     super.dispose();
   }
 

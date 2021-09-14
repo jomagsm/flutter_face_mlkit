@@ -33,6 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String? _photoPath;
+  String  _inn = '';
+  String  _passportNumber = '';
   var _scaffoldState = GlobalKey<ScaffoldState>();
 
   var _livenessSelectStatus;
@@ -57,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                Text('Passport: $_passportNumber'),
+                Text('Id: $_inn'),
                 RaisedButton(
                     child: Text('Start Camera'),
                     onPressed: () async {
