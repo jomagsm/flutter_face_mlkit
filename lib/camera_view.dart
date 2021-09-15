@@ -51,6 +51,7 @@ class _CameraViewState extends State<CameraView> {
     try {
       _cameraInitializer = _cameraController!.initialize();
       await _cameraInitializer;
+      await startRecognizer();
 
     } catch (err) {
       print(err);
@@ -123,17 +124,17 @@ class _CameraViewState extends State<CameraView> {
         var result = (results as VisionText);
         for (TextBlock block in result.blocks) {
           for (TextLine line in block.lines) {
-            print(
-                'RECOGNIZED ${result.blocks.indexOf(block)} ${block.lines.indexOf(line)} ${line.text}');
+            // print(
+            //     'RECOGNIZED ${result.blocks.indexOf(block)} ${block.lines.indexOf(line)} ${line.text}');
             if (line.text != null) {
               var text = line.text!.trim();
               if ((text.startsWith('AN') || text.startsWith('ID')) &&
                   text.length == 9 &&
                   _isNumber(text.substring(2, 9)))
-                print('PASSPORT SERIES AND NUMBER: $text');
+                print('PASSPORT SERIES AND NUMBER: $text'); // Series and number of pass
 
-              // if(text.length ==14 && (text.startsWith('1') || text.startsWith('2')))
-              //   print( 'PASSPORT INN: $text');
+              if(text.length ==14 && (text.startsWith('1') || text.startsWith('2')) && _isNumber(text) )
+                print( 'PASSPORT INN: $text'); // INN
             }
           }
         }
@@ -142,12 +143,12 @@ class _CameraViewState extends State<CameraView> {
   }
 
   disposeRecognizer() {
-    if (onPassportDataRecognized != null) {
+    // if (onPassportDataRecognized != null) {
       _recognizer.close().then((_) {
         _cameraController!.stopImageStream();
         _cameraController?.dispose();
+        // });
       });
-    }
   }
 
   @override
