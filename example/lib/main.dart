@@ -92,7 +92,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 RaisedButton(
                     child: Text('Start liveness Camera'),
                     onPressed: () async {
-
                       final random = Random();
 
                       var index = random.nextInt(_livenessStatus.length);
@@ -104,8 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       var result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  CameraLivenessFaceScreen(livenessType: _livenessSelectStatus,)));
+                              builder: (context) => CameraLivenessFaceScreen(
+                                    livenessType: _livenessSelectStatus,
+                                  )));
                       if (result == null) {
                         _scaffoldState.currentState!.showSnackBar(SnackBar(
                           content: Text('Лицо не определено'),
@@ -251,7 +251,7 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
               {
                 return Center(
                   child: Text(
-                    'ШАГ 3: Поместите лицо в овал. Для проверки.',
+                    'ШАГ 3: Поместите лицо в овал и моргните чтобы сделать фото',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
@@ -263,10 +263,7 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    LinearProgressIndicator(
-                      value: _livenessPercentage,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                    ),
+
                     Text(
                       'ШАГ 2: ${_livenessTexts[widget.livenessType!]}',
                       textAlign: TextAlign.center,

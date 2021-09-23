@@ -55,6 +55,7 @@ class _LivenessComponentState extends State<LivenessComponent>
   GlobalKey _keyBuilder = GlobalKey();
   Future<void>? _initializeControllerFuture;
   CameraController? _controller;
+  int? _faceId;
 
   late CameraDescription _cameraDescription;
   bool _isDetecting = false;
@@ -109,7 +110,6 @@ class _LivenessComponentState extends State<LivenessComponent>
 
   bool _isFaceInOval(Face face) {
     var _faceAngle = face.headEulerAngleY!;
-    _faceAngle = _faceAngle > 50.0 ? 50.0 : _faceAngle;
 
     double _facePercentage = _faceAngle * 100.0 / 50.0;
     print('Face angle percentage = $_facePercentage');
@@ -129,7 +129,7 @@ class _LivenessComponentState extends State<LivenessComponent>
       face.boundingBox.bottom * scaleY,
     );
 
-    if (_facePercentage < -5.0 || _facePercentage > 5.0) {
+    if (_facePercentage < -30.0 || _facePercentage > 30.0) {
       return false;
     }
     print('-------------------$_facePercentage----------------');
@@ -137,10 +137,7 @@ class _LivenessComponentState extends State<LivenessComponent>
         faceRect.toString() +
         ' - ' +
         _customOvalRect.toString());
-    // if (faceRect.left >= _customOvalRect.left - 30 &&
-    //     faceRect.top >= _customOvalRect.top - 30 &&
-    //     faceRect.bottom <= _customOvalRect.bottom + 30 &&
-    //     faceRect.right <= _customOvalRect.right + 30) {
+
     if (faceRect.left >= 0 &&
         faceRect.top >= _customOvalRect!.top - 30 &&
         faceRect.bottom <= _customOvalRect!.bottom + 30 &&
@@ -213,46 +210,67 @@ class _LivenessComponentState extends State<LivenessComponent>
     });
 
     if (_isFaceInOval(face) == true) {
-      _isTakePhoto = true;
-      try {
-        await _controller!.stopImageStream();
-
-        _successImageAnimationController!.forward();
-        setState(() => _isAnimRun = true);
-
-        var tmpDir = await getTemporaryDirectory();
-        var rStr = DateTime.now().microsecondsSinceEpoch.toString();
-        var imgPath = '${tmpDir.path}/${rStr}_selfie.jpg';
-        var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
-
-        await Future.delayed(Duration(milliseconds: 300));
-        await _controller!.takePicture(imgPath);
-        LoadingOverlay.showLoadingOverlay(context);
-        var compressedFile = await FlutterImageCompress.compressAndGetFile(
-            imgPath, imgCopressedPath,
-            quality: 75);
-
+      if (_isEyesClose(face)) {
+        _isTakePhoto = true;
         try {
-          List<Face> _faces = await _faceDetector!
-              .processImage(GoogleVisionImage.fromFile(compressedFile!));
-          var _faceForCheck = _faces.first;
-          if (_isFaceInOval(_faceForCheck) == true) {
-            _onCapturePhoto(compressedFile.path);
-          } else {
+          if (Platform.isAndroid) {
+            await _controller!.stopImageStream();
+          }
+          _successImageAnimationController!.forward();
+          setState(() => _isAnimRun = true);
+          var tmpDir = await getTemporaryDirectory();
+          var rStr = DateTime.now().microsecondsSinceEpoch.toString();
+          var imgPath = '${tmpDir.path}/${rStr}_selfie.jpg';
+          var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
+
+          await Future.delayed(Duration(milliseconds: 300));
+          await _controller!.takePicture(imgPath);
+          LoadingOverlay.showLoadingOverlay(context);
+          var compressedFile = await FlutterImageCompress.compressAndGetFile(
+              imgPath, imgCopressedPath,
+              quality: 75);
+
+          try {
+            var faces = await _faceDetector!
+                .processImage(GoogleVisionImage.fromFile(compressedFile!));
+            var faceForCheck = faces.first;
+
+            if (!_isEyesClose(faceForCheck)  && _faceId == faceForCheck.trackingId && faces.length == 1) {
+              _onCapturePhoto(compressedFile.path);
+            } else {
+              setState(() {
+                _faceStepType = FaceStepType.FACE_STEP_FACEDETECTION;
+                _successImageAnimationController!.reset();
+                _isTakePhoto = false;
+                _isAnimRun = false;
+                _isDetecting = false;
+                _onStepChange(_faceStepType);
+                if(Platform.isAndroid) {
+                  _initializeCamera();
+                }
+              });
+            }
+          } catch (_) {
             _onCapturePhoto(null);
           }
-        } catch (_) {
-          _onCapturePhoto(null);
+          LoadingOverlay.removeLoadingOverlay();
+        } catch (err) {
+          LoadingOverlay.removeLoadingOverlay();
+          print(err);
+          _isTakePhoto = false;
+          _initializeCamera();
         }
-        LoadingOverlay.removeLoadingOverlay();
-      } catch (err) {
-        LoadingOverlay.removeLoadingOverlay();
-        print(err);
-        _controller?.dispose();
-        _isTakePhoto = false;
-        _initializeCamera();
       }
     }
+  }
+
+  bool _isEyesClose(Face face) {
+    print(
+        '\nL | R eye opened probability = ${face.leftEyeOpenProbability} | ${face.rightEyeOpenProbability}\n');
+    if (face.leftEyeOpenProbability == null ||
+        face.rightEyeOpenProbability == null) return false;
+    return (face.rightEyeOpenProbability! < 0.05 &&
+        face.leftEyeOpenProbability! < 0.05);
   }
 
   Future<void> _faceProcessing(Face face) async {
@@ -293,7 +311,12 @@ class _LivenessComponentState extends State<LivenessComponent>
             parent: _successImageAnimationController!,
             curve: Curves.slowMiddle));
 
-    _faceDetector = GoogleVision.instance.faceDetector();
+    _faceDetector = GoogleVision.instance.faceDetector(
+      FaceDetectorOptions(
+        enableTracking: true,
+        enableClassification: true,
+      ),
+    );
 
     _initializeCamera();
   }
@@ -325,10 +348,23 @@ class _LivenessComponentState extends State<LivenessComponent>
           if (!mounted) return;
 
           List<Face> faces = results as List<Face>;
-          print('Faces = ' + faces.length.toString());
+
           try {
-            var _face = faces.first;
-            _faceProcessing(_face);
+            var face = faces.first;
+            if (face.trackingId != null) {
+              if (_faceId == null) {
+                _faceId = face.trackingId!;
+              } else if (_faceId != face.trackingId) {
+                setState(() {
+                  print(
+                      '\n\nTRACKING ID = ${face.trackingId}\nFACE ID = ${_faceId}');
+                  _faceId = null;
+                  _faceStepType = FaceStepType.FACE_STEP_LIVENESS;
+                  _onStepChange(_faceStepType);
+                });
+              }
+            }
+            _faceProcessing(face);
           } catch (_) {}
         },
       ).whenComplete(() => _isDetecting = false);
