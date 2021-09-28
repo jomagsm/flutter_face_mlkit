@@ -33,8 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String? _photoPath;
-  String  _inn = '';
-  String  _passportNumber = '';
+  String _inn = '';
+  String _passportNumber = '';
   var _scaffoldState = GlobalKey<ScaffoldState>();
 
   var _livenessSelectStatus;
@@ -59,8 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Passport: $_passportNumber'),
-                Text('Id: $_inn'),
                 RaisedButton(
                     child: Text('Start Camera'),
                     onPressed: () async {
@@ -71,9 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => CameraScreen()));
-                      if (result != null && result is String) {
+                      if (result != null && result is PassportData && result.path != null) {
                         setState(() {
-                          _photoPath = result;
+                          _photoPath = result.path;
+                          _inn = result.identificationNumber ?? '';
+                          _passportNumber = result.documentNumber ?? '';
                         });
                       }
                     }),
@@ -96,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 RaisedButton(
                     child: Text('Start liveness Camera'),
                     onPressed: () async {
-
                       final random = Random();
 
                       var index = random.nextInt(_livenessStatus.length);
@@ -109,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  CameraLivenessFaceScreen(livenessType: _livenessSelectStatus,)));
+                                  CameraLivenessFaceScreen(
+                                    livenessType: _livenessSelectStatus,)));
                       if (result == null) {
                         _scaffoldState.currentState!.showSnackBar(SnackBar(
                           content: Text('Лицо не определено'),
@@ -122,12 +122,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       }
                     }),
+                Text('Passport: $_passportNumber'),
+                Text('Id: $_inn'),
                 _photoPath != null
                     ? Image.file(File(_photoPath!))
                     : SizedBox(
-                        height: 0,
-                        width: 0,
-                      ),
+                  height: 0,
+                  width: 0,
+                ),
+
               ],
             ),
           ),
@@ -151,10 +154,10 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
         body: CameraView(
           onError: print,
-          onCapture: (path) {
-            if (path != null) {
-              print(path);
-              Navigator.pop(context, path);
+          onCapture: (data) {
+            if (data.path != null) {
+              print(data.path);
+              Navigator.pop(context, data);
             }
           },
           overlayBuilder: (context) {
@@ -166,9 +169,9 @@ class _CameraScreenState extends State<CameraScreen> {
                 color: Colors.red,
                 child: Center(
                     child: RaisedButton(
-                  onPressed: () => onCapture(),
-                  child: Text('BTN'),
-                )));
+                      onPressed: () => onCapture(),
+                      child: Text('BTN'),
+                    )));
           },
         ));
   }
@@ -182,7 +185,9 @@ class CameraFaceScreen extends StatefulWidget {
 class _CameraFaceScreenState extends State<CameraFaceScreen> {
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery
+        .of(context)
+        .size;
     var ovalRect = Rect.fromLTWH(((size.width / 2) - (250 / 2)), 50, 250, 350);
 
     return Scaffold(
@@ -191,11 +196,12 @@ class _CameraFaceScreenState extends State<CameraFaceScreen> {
       ),
       body: SelfieAutocapture(
         ovalRect: ovalRect,
-        infoBlockBuilder: (BuildContext context) => Center(
-            child: Text(
-          'Поместите лицо в овал',
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        )),
+        infoBlockBuilder: (BuildContext context) =>
+            Center(
+                child: Text(
+                  'Поместите лицо в овал',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                )),
         onCapturePhoto: (path) {
           if (path != null) {
             print(path);
@@ -229,7 +235,9 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery
+        .of(context)
+        .size;
     var ovalRect = Rect.fromLTWH(((size.width / 2) - (250 / 2)), 50, 250, 350);
 
     return Scaffold(
@@ -265,29 +273,30 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
               {
                 return Center(
                     child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    LinearProgressIndicator(
-                      value: _livenessPercentage,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                    ),
-                    Text(
-                      'ШАГ 2: ${_livenessTexts[widget.livenessType!]}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ],
-                ));
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        LinearProgressIndicator(
+                          value: _livenessPercentage,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.green),
+                        ),
+                        Text(
+                          'ШАГ 2: ${_livenessTexts[widget.livenessType!]}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ],
+                    ));
               }
             case FaceStepType.FACE_STEP_FACEDETECTION:
             default:
               {
                 return Center(
                     child: Text(
-                  'ШАГ 1: Посмотрите на камеру.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ));
+                      'ШАГ 1: Посмотрите на камеру.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ));
               }
           }
         },

@@ -26,7 +26,6 @@ class ScannerUtils {
     required Future<dynamic> Function(GoogleVisionImage image) detectInImage,
     required int imageRotation,
   }) async {
-    // print(image.planes.length);
     return detectInImage(
       GoogleVisionImage.fromBytes(
         _concatenatePlanes(image.planes),
