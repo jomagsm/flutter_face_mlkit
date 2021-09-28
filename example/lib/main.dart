@@ -124,8 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       }
                     }),
-                Text('Passport: $_passportNumber'),
-                Text('Id: $_inn'),
+                Text('PASSPORT NUMBER: $_passportNumber'),
+                Text('IDENTIFICATION NUMBER: $_inn'),
                 _photoPath != null
                     ? Image.file(File(_photoPath!))
                     : SizedBox(

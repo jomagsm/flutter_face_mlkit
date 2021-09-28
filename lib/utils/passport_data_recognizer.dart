@@ -12,7 +12,7 @@ class PassportDataAnalyzer {
 
   String? get paperNumber => _getMostFrequentElement(_paperNumbList);
 
-  void addPaperNumber(String paperNumber) => _paperNumbList.add(paperNumber);
+  void addPassportNUmber(String paperNumber) => _paperNumbList.add(paperNumber);
 
   void addIdentificationNumber(String value) =>
       _identificationNumberList.add(value);

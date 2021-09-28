@@ -132,11 +132,11 @@ class _CameraViewState extends State<CameraView> {
               var text = line.text!.trim();
               if (passportDataAnalyzer.isIdentificationNumber(text)) {
                 // print('IDENTIFICATION NUMBER:   $text');
-                passportDataAnalyzer.addPaperNumber(text);
+                passportDataAnalyzer.addPassportNUmber(text);
               }
               if (passportDataAnalyzer.isPassportNumber(text)) {
                 // print('PASSPORT NUMBER:   $text');
-                passportDataAnalyzer.addIdentificationNumber(text);
+                passportDataAnalyzer.addPassportNUmber(text);
               }
             }
           }
