@@ -33,6 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String? _photoPath;
+  String _inn = '';
+  String _passportNumber = '';
   var _scaffoldState = GlobalKey<ScaffoldState>();
 
   var _livenessSelectStatus;
@@ -67,9 +69,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => CameraScreen()));
-                      if (result != null && result is String) {
+                      if (result != null &&
+                          result is PassportData &&
+                          result.path != null) {
                         setState(() {
-                          _photoPath = result;
+                          _photoPath = result.path;
+                          _inn = result.identificationNumber ?? '';
+                          _passportNumber = result.documentNumber ?? '';
                         });
                       }
                     }),
@@ -118,6 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       }
                     }),
+                Text('Passport: $_passportNumber'),
+                Text('Id: $_inn'),
                 _photoPath != null
                     ? Image.file(File(_photoPath!))
                     : SizedBox(
@@ -147,10 +155,10 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
         body: CameraView(
           onError: print,
-          onCapture: (path) {
-            if (path != null) {
-              print(path);
-              Navigator.pop(context, path);
+          onCapture: (data) {
+            if (data.path != null) {
+              print(data.path);
+              Navigator.pop(context, data);
             }
           },
           overlayBuilder: (context) {
@@ -263,7 +271,6 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-
                     Text(
                       'ШАГ 2: ${_livenessTexts[widget.livenessType!]}',
                       textAlign: TextAlign.center,
