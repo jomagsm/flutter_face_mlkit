@@ -34,14 +34,16 @@ class LivenessComponent extends StatefulWidget {
 
   final FaceLivenessType livenessType;
 
-  final Widget Function(BuildContext)? infoBlockBuilder;
+  final Widget Function(BuildContext)? footerBuilder;
+  final Widget Function(BuildContext)? headerBuilder;
 
   LivenessComponent(
       {Key? key,
       this.ovalRect,
       this.livenessType = FaceLivenessType.FACE_ANGLE_LEFT,
       this.onLivenessPercentChange,
-      this.infoBlockBuilder,
+      this.headerBuilder,
+      this.footerBuilder,
       this.onCapturePhoto,
       this.onStepChanged})
       : super(key: key);
@@ -91,9 +93,17 @@ class _LivenessComponentState extends State<LivenessComponent>
     }
   }
 
-  Widget _infoBlockBuilder(BuildContext context) {
-    if (widget.infoBlockBuilder != null) {
-      return widget.infoBlockBuilder!(context);
+  Widget _footerBlockBuilder(BuildContext context) {
+    if (widget.footerBuilder != null) {
+      return widget.footerBuilder!(context);
+    } else {
+      return SizedBox(height: 0, width: 0);
+    }
+  }
+
+  Widget _headerBlockBuilder(BuildContext context) {
+    if (widget.headerBuilder != null) {
+      return widget.headerBuilder!(context);
     } else {
       return SizedBox(height: 0, width: 0);
     }
@@ -235,7 +245,9 @@ class _LivenessComponentState extends State<LivenessComponent>
                 .processImage(GoogleVisionImage.fromFile(compressedFile!));
             var faceForCheck = faces.first;
 
-            if (!_isEyesClose(faceForCheck)  && _faceId == faceForCheck.trackingId && faces.length == 1) {
+            if (!_isEyesClose(faceForCheck) &&
+                _faceId == faceForCheck.trackingId &&
+                faces.length == 1) {
               _onCapturePhoto(compressedFile.path);
             } else {
               setState(() {
@@ -245,7 +257,7 @@ class _LivenessComponentState extends State<LivenessComponent>
                 _isAnimRun = false;
                 _isDetecting = false;
                 _onStepChange(_faceStepType);
-                if(Platform.isAndroid) {
+                if (Platform.isAndroid) {
                   _initializeCamera();
                 }
               });
@@ -387,6 +399,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     return Container(
+      color: Colors.black,
         child: FutureBuilder<void>(
       key: _keyBuilder,
       future: _initializeControllerFuture,
@@ -400,9 +413,12 @@ class _LivenessComponentState extends State<LivenessComponent>
           return Stack(
             children: <Widget>[
               Center(
-                  child: AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: CameraPreview(_controller!))),
+                child: AspectRatio(
+                  aspectRatio: _controller!.value.aspectRatio,
+                  child: CameraPreview(_controller!),
+                ),
+              ),
+
               _isShowOvalArea()
                   ? CustomPaint(
                       foregroundPainter: FaceDetectorPainter(
@@ -419,7 +435,7 @@ class _LivenessComponentState extends State<LivenessComponent>
                   top: _customOvalRect!.bottom + 40,
                   left: 0,
                   right: 0,
-                  child: Container(child: _infoBlockBuilder(context))),
+                  child: Container(child: _footerBlockBuilder(context))),
               _isShowAnimationArea()
                   ? AnimatedBuilder(
                       animation: _successImageAnimationController!,
@@ -456,7 +472,11 @@ class _LivenessComponentState extends State<LivenessComponent>
                         onFinish: () => setState(() => _isAnimRun = false),
                       ),
                     )
-                  : SizedBox(height: 0, width: 0)
+                  : SizedBox(height: 0, width: 0),
+              Positioned(
+                bottom: _customOvalRect!.bottom,
+                child: _headerBlockBuilder(context),
+              ),
             ],
           );
         }

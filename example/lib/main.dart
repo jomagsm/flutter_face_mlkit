@@ -107,11 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         _photoPath = null;
                       });
                       var result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CameraLivenessFaceScreen(
-                                    livenessType: _livenessSelectStatus,
-                                  )));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CameraLivenessFaceScreen(
+                            livenessType: _livenessSelectStatus,
+                          ),
+                        ),
+                      );
                       if (result == null) {
                         _scaffoldState.currentState!.showSnackBar(SnackBar(
                           content: Text('Лицо не определено'),
@@ -253,7 +255,7 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
           setState(() => _livenessPercentage = percentage / 100);
           print('LIVENESS PERCENTAGE = $percentage');
         },
-        infoBlockBuilder: (BuildContext context) {
+        footerBuilder: (BuildContext context) {
           switch (_faceStepType) {
             case FaceStepType.FACE_STEP_CAPTURING:
               {
@@ -291,6 +293,21 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
               }
           }
         },
+        headerBuilder: (p0) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Center(
+                child: Text(
+                  'Header block builder',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
         onCapturePhoto: (path) {
           Navigator.pop(context, path);
         },

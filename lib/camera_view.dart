@@ -84,6 +84,7 @@ class _CameraViewState extends State<CameraView> {
       await Future.delayed(Duration(milliseconds: 300));
       LoadingOverlay.removeLoadingOverlay();
       _isTakePhoto = false;
+
       _onCapture(PassportData(
           imgPath,
           passportDataAnalyzer.identificationNumber,
