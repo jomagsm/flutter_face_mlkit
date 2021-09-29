@@ -399,102 +399,105 @@ class _LivenessComponentState extends State<LivenessComponent>
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     return Container(
-      color: Colors.black,
+        color: Colors.black,
         child: FutureBuilder<void>(
-      key: _keyBuilder,
-      future: _initializeControllerFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            _controller?.value.isInitialized == true) {
-          final Size imageSize = Size(
-            _controller!.value.previewSize!.height,
-            _controller!.value.previewSize!.width,
-          );
-          return Stack(
-            children: <Widget>[
-              Center(
-                child: AspectRatio(
-                  aspectRatio: _controller!.value.aspectRatio,
-                  child: CameraPreview(_controller!),
-                ),
-              ),
-
-              _isShowOvalArea()
-                  ? CustomPaint(
-                      foregroundPainter: FaceDetectorPainter(
-                          imageSize, _face, _customOvalRect),
-                      child: ClipPath(
-                          clipper: OvalClipper(_customOvalRect),
-                          child: Transform.scale(
-                              scale:
-                                  _controller!.value.aspectRatio / deviceRatio,
-                              child: Center(
-                                  child: Container(color: Colors.black54)))))
-                  : SizedBox(height: 0, width: 0),
-              Positioned(
-                  top: _customOvalRect!.bottom + 40,
-                  left: 0,
-                  right: 0,
-                  child: Container(child: _footerBlockBuilder(context))),
-              _isShowAnimationArea()
-                  ? AnimatedBuilder(
-                      animation: _successImageAnimationController!,
-                      builder: (context, child) {
-                        return Positioned(
-                            child: Opacity(
-                                opacity: _successImageAnimation == null
-                                    ? 0.0
-                                    : _successImageAnimation!.value,
-                                child: Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.green,
-                                  size: 52,
-                                )),
-                            top: _customOvalRect!.center.dy - 26,
-                            left: _customOvalRect!.center.dx - 26);
-                      })
-                  : SizedBox(height: 0, width: 0),
-              _isShowAnimationArea()
-                  ? Positioned(
-                      top: 0,
+          key: _keyBuilder,
+          future: _initializeControllerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                _controller?.value.isInitialized == true) {
+              final Size imageSize = Size(
+                _controller!.value.previewSize!.height,
+                _controller!.value.previewSize!.width,
+              );
+              return Stack(
+                children: <Widget>[
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: CameraPreview(_controller!),
+                    ),
+                  ),
+                  _isShowOvalArea()
+                      ? CustomPaint(
+                          foregroundPainter: FaceDetectorPainter(
+                              imageSize, _face, _customOvalRect),
+                          child: ClipPath(
+                              clipper: OvalClipper(_customOvalRect),
+                              child: Transform.scale(
+                                  scale: _controller!.value.aspectRatio /
+                                      deviceRatio,
+                                  child: Center(
+                                      child:
+                                          Container(color: Colors.black54)))))
+                      : SizedBox(height: 0, width: 0),
+                  Positioned(
+                      top: _customOvalRect!.bottom / 0.9,
                       left: 0,
-                      child: AnimatedDrawing.paths(
-                        <Path>[_ovalPath!],
-                        paints: <Paint>[_ovalPaint!],
-                        animationOrder: PathOrder.byLength(),
-                        lineAnimation: LineAnimation.oneByOne,
-                        animationCurve: Curves.easeInQuad,
-                        scaleToViewport: false,
-                        width: _customOvalRect!.width,
-                        height: _customOvalRect!.height,
-                        duration: Duration(milliseconds: 400),
-                        run: _isAnimRun,
-                        onFinish: () => setState(() => _isAnimRun = false),
-                      ),
-                    )
-                  : SizedBox(height: 0, width: 0),
-              Positioned(
-                bottom: _customOvalRect!.bottom,
-                child: _headerBlockBuilder(context),
-              ),
-            ],
-          );
-        }
-        if (snapshot.hasError) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
-                  textAlign: TextAlign.center,
-                ),
-              )
-            ],
-          );
-        }
-        return SizedBox(height: 0, width: 0);
-      },
-    ));
+                      right: 0,
+                      child: Container(child: _footerBlockBuilder(context))),
+                  _isShowAnimationArea()
+                      ? AnimatedBuilder(
+                          animation: _successImageAnimationController!,
+                          builder: (context, child) {
+                            return Positioned(
+                                child: Opacity(
+                                    opacity: _successImageAnimation == null
+                                        ? 0.0
+                                        : _successImageAnimation!.value,
+                                    child: Icon(
+                                      Icons.check_circle_outline,
+                                      color: Colors.green,
+                                      size: 52,
+                                    )),
+                                top: _customOvalRect!.center.dy - 26,
+                                left: _customOvalRect!.center.dx - 26);
+                          })
+                      : SizedBox(height: 0, width: 0),
+                  _isShowAnimationArea()
+                      ? Positioned(
+                          top: 0,
+                          left: 0,
+                          child: AnimatedDrawing.paths(
+                            <Path>[_ovalPath!],
+                            paints: <Paint>[_ovalPaint!],
+                            animationOrder: PathOrder.byLength(),
+                            lineAnimation: LineAnimation.oneByOne,
+                            animationCurve: Curves.easeInQuad,
+                            scaleToViewport: false,
+                            width: _customOvalRect!.width,
+                            height: _customOvalRect!.height,
+                            duration: Duration(milliseconds: 400),
+                            run: _isAnimRun,
+                            onFinish: () => setState(() => _isAnimRun = false),
+                          ),
+                        )
+                      : SizedBox(height: 0, width: 0),
+                  Positioned(
+                    top: _customOvalRect!.top * 0.1,
+                    left: 0,
+                    right: 0,
+                    bottom: _customOvalRect!.bottom,
+                    child: _headerBlockBuilder(context),
+                  ),
+                ],
+              );
+            }
+            if (snapshot.hasError) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                ],
+              );
+            }
+            return SizedBox(height: 0, width: 0);
+          },
+        ));
   }
 }

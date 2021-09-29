@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_face_mlkit/camera_view.dart';
 import 'package:flutter_face_mlkit/flutter_face_mlkit.dart';
@@ -236,7 +237,8 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    var ovalRect = Rect.fromLTWH(((size.width / 2) - (250 / 2)), 50, 250, 350);
+    var ovalRect = Rect.fromLTWH(
+        ((size.width / 2) - (250 / 2)), size.height * 0.16, 250, 350);
 
     return Scaffold(
       appBar: AppBar(
@@ -299,10 +301,37 @@ class _CameraLivenessFaceScreen extends State<CameraLivenessFaceScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Center(
-                child: Text(
-                  'Header block builder',
-                  style: TextStyle(color: Colors.white),
+              Container(
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    Text(
+                      'Для успешной идентификации,\nлицо должно быть хорошо освещено',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.face,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                        Icon(
+                          Icons.light_mode_rounded,
+                          size: 50,
+                          color: Colors.white,
+                        )
+                      ],
+                    )
+                  ],
                 ),
               ),
             ],
