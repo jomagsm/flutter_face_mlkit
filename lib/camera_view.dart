@@ -131,12 +131,21 @@ class _CameraViewState extends State<CameraView> {
           for (TextLine line in block.lines) {
             if (line.text != null) {
               var text = line.text!.trim();
+              if(text.length == 30 && text.startsWith('IDKGZ')){
+                print(text);
+                var mPaperNumber = text.substring(5,14);
+                var mInn = text.substring(15,29);
+                if(passportDataAnalyzer.isIdentificationNumber(mInn)){
+                  passportDataAnalyzer.addIdentificationNumber(mInn);
+                }
+                if (passportDataAnalyzer.isPassportNumber(mPaperNumber)) {
+                  passportDataAnalyzer.addPassportNUmber(mPaperNumber);
+                }
+              }
               if (passportDataAnalyzer.isIdentificationNumber(text)) {
-                // print('IDENTIFICATION NUMBER:   $text');
                 passportDataAnalyzer.addIdentificationNumber(text);
               }
               if (passportDataAnalyzer.isPassportNumber(text)) {
-                // print('PASSPORT NUMBER:   $text');
                 passportDataAnalyzer.addPassportNUmber(text);
               }
             }
