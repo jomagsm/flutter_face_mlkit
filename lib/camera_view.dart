@@ -94,7 +94,7 @@ class _CameraViewState extends State<CameraView> {
         await _cameraController!.setAutoFocus(false);
       }
     } catch (err) {
-      await _cameraController!.setAutoFocus(false);
+      await _cameraController!.setAutoFocus(true);
       LoadingOverlay.removeLoadingOverlay();
       _isTakePhoto = false;
       _onError(err);
