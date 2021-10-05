@@ -67,7 +67,7 @@ class _CameraViewState extends State<CameraView> {
     try {
       if (_isTakePhoto) return;
       _isTakePhoto = true;
-      if (Platform.isAndroid) {
+      if (Platform.isAndroid && _cameraController!.value.isStreamingImages!) {
         await _cameraController!.stopImageStream();
         await Future.delayed(Duration(milliseconds: 500));
       }
