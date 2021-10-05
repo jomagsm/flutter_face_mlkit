@@ -91,7 +91,7 @@ class _CameraViewState extends State<CameraView> {
           passportDataAnalyzer.paperNumber));
 
       if (Platform.isAndroid) {
-        await _cameraController!.setAutoFocus(false);
+        await _cameraController!.setAutoFocus(true);
       }
     } catch (err) {
       await _cameraController!.setAutoFocus(true);
