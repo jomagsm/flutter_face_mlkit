@@ -142,12 +142,12 @@ class _CameraViewState extends State<CameraView> {
                   passportDataAnalyzer.addPassportNUmber(mPaperNumber);
                 }
               }
-              if (passportDataAnalyzer.isIdentificationNumber(text)) {
-                passportDataAnalyzer.addIdentificationNumber(text);
-              }
-              if (passportDataAnalyzer.isPassportNumber(text)) {
-                passportDataAnalyzer.addPassportNUmber(text);
-              }
+              // if (passportDataAnalyzer.isIdentificationNumber(text)) {
+              //   passportDataAnalyzer.addIdentificationNumber(text);
+              // }
+              // if (passportDataAnalyzer.isPassportNumber(text)) {
+              //   passportDataAnalyzer.addPassportNUmber(text);
+              // }
             }
           }
         }

@@ -245,7 +245,7 @@ class _LivenessComponentState extends State<LivenessComponent>
                 .processImage(GoogleVisionImage.fromFile(compressedFile!));
             var faceForCheck = faces.first;
 
-            if (!_isEyesClose(faceForCheck) &&
+            if (_isEyesOpen(faceForCheck) &&
                 _faceId == faceForCheck.trackingId &&
                 faces.length == 1) {
               _onCapturePhoto(compressedFile.path);
@@ -284,6 +284,13 @@ class _LivenessComponentState extends State<LivenessComponent>
     return (face.rightEyeOpenProbability! < 0.05 &&
         face.leftEyeOpenProbability! < 0.05);
   }
+  bool _isEyesOpen(Face face) {
+    if (face.leftEyeOpenProbability == null ||
+        face.rightEyeOpenProbability == null) return false;
+    return (face.rightEyeOpenProbability! > 0.55 &&
+        face.leftEyeOpenProbability! > 0.55);
+  }
+
 
   Future<void> _faceProcessing(Face face) async {
     switch (_faceStepType) {
