@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_face_mlkit/camera_view.dart';
 import 'package:flutter_face_mlkit/flutter_face_mlkit.dart';
