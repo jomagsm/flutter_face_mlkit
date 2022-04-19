@@ -48,7 +48,7 @@ class _CameraViewState extends State<CameraView> {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
     _cameraController =
-        CameraController(cameraDesc, ResolutionPreset.medium, enableAudio: false);
+        CameraController(cameraDesc, ResolutionPreset.high, enableAudio: false);
 
     try {
       _cameraInitializer = _cameraController!.initialize();
