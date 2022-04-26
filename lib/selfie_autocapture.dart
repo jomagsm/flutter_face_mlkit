@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:drawing_animation/drawing_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/face_detector_painter.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,6 +32,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
   bool isCameraReady = false;
   bool _isDetecting = false;
   bool _isTakePhoto = false;
+  final options = FaceDetectorOptions();
   FaceDetector? _faceDetector;
   Face? _face;
   GlobalKey _keyBuilder = GlobalKey();
@@ -103,7 +104,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
         CurvedAnimation(
             parent: _successImageAnimationController,
             curve: Curves.slowMiddle));
-    _faceDetector = GoogleVision.instance.faceDetector();
+    _faceDetector = FaceDetector(options: options);
     _faceSubject = BehaviorSubject<Face?>();
     _faceSubject!.stream
         .where((Face? face) {
@@ -129,11 +130,11 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
                   '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
 
               await Future.delayed(Duration(milliseconds: 300));
-              var file = await _controller!.takePicture(imgPath);
+              final imgP = await _controller!.takePicture();
               LoadingOverlay.showLoadingOverlay(context);
               var compressedFile =
                   await FlutterImageCompress.compressAndGetFile(
-                      imgPath, imgCopressedPath,
+                      imgP.path, imgCopressedPath,
                       quality: 75);
 
               LoadingOverlay.removeLoadingOverlay();
@@ -183,7 +184,7 @@ class _SelfieAutocaptureState extends State<SelfieAutocapture>
       ScannerUtils.detect(
         image: image,
         detectInImage: _faceDetector!.processImage,
-        imageRotation: _cameraDescription.sensorOrientation!,
+        imageRotation: _cameraDescription.sensorOrientation,
       ).then(
         (dynamic results) {
           if (!mounted) return;
