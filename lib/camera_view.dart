@@ -47,8 +47,12 @@ class _CameraViewState extends State<CameraView> {
   Future<void> _initializeCamera() async {
     CameraDescription cameraDesc = await ScannerUtils.getCamera(
         _getCameraLensDirection(widget.cameraLensType));
-    _cameraController =
-        CameraController(cameraDesc, ResolutionPreset.high, enableAudio: false);
+    _cameraController = CameraController(
+      cameraDesc,
+      ResolutionPreset.high,
+      enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.jpeg,
+    );
 
     try {
       _cameraInitializer = _cameraController!.initialize();
@@ -171,6 +175,8 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
     return Container(
       child: FutureBuilder(
         future: _cameraInitializer,
@@ -180,10 +186,15 @@ class _CameraViewState extends State<CameraView> {
             return Stack(
               children: <Widget>[
                 Center(
-                    child: Container(
-                        child: AspectRatio(
-                            aspectRatio: _cameraController!.value.aspectRatio,
-                            child: CameraPreview(_cameraController!)))),
+                  child: Container(
+                      child: Transform.scale(
+                    scale: _cameraController!.value.aspectRatio / deviceRatio,
+                    child: AspectRatio(
+                      aspectRatio: _cameraController!.value.aspectRatio,
+                      child: CameraPreview(_cameraController!),
+                    ),
+                  )),
+                ),
                 _overlayBuilder(context),
                 Positioned(
                     left: 0,
