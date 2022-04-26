@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/passport_data.dart';
 import 'package:flutter_face_mlkit/utils/passport_data_recognizer.dart';
@@ -67,7 +67,7 @@ class _CameraViewState extends State<CameraView> {
     try {
       if (_isTakePhoto) return;
       _isTakePhoto = true;
-      if (Platform.isAndroid && _cameraController!.value.isStreamingImages!) {
+      if (Platform.isAndroid && _cameraController!.value.isStreamingImages) {
         await _cameraController!.stopImageStream();
         await Future.delayed(Duration(milliseconds: 500));
       }
@@ -79,7 +79,7 @@ class _CameraViewState extends State<CameraView> {
       if (Platform.isAndroid) {
         await Future.delayed(Duration(milliseconds: 300));
       }
-      await _cameraController!.takePicture(imgPath);
+      await _cameraController!.takePicture();
       LoadingOverlay.showLoadingOverlay(context);
       await Future.delayed(Duration(milliseconds: 300));
       LoadingOverlay.removeLoadingOverlay();
@@ -91,10 +91,10 @@ class _CameraViewState extends State<CameraView> {
           passportDataAnalyzer.paperNumber));
 
       if (Platform.isAndroid) {
-        await _cameraController!.setAutoFocus(true);
+        await _cameraController!.setFocusMode(FocusMode.auto);
       }
     } catch (err) {
-      await _cameraController!.setAutoFocus(true);
+      await _cameraController!.setFocusMode(FocusMode.auto);
       LoadingOverlay.removeLoadingOverlay();
       _isTakePhoto = false;
       _onError(err);
@@ -121,7 +121,7 @@ class _CameraViewState extends State<CameraView> {
       ScannerUtils.detect(
         image: image,
         detectInImage: _recognizer.processImage,
-        imageRotation: _cameraController!.description.sensorOrientation!,
+        imageRotation: _cameraController!.description.sensorOrientation,
       ).then((dynamic results) {
         if (!mounted) {
           return;
@@ -131,11 +131,11 @@ class _CameraViewState extends State<CameraView> {
           for (TextLine line in block.lines) {
             if (line.text != null) {
               var text = line.text!.trim();
-              if(text.length == 30 && text.startsWith('IDKGZ')){
+              if (text.length == 30 && text.startsWith('IDKGZ')) {
                 print(text);
-                var mPaperNumber = text.substring(5,14);
-                var mInn = text.substring(15,29);
-                if(passportDataAnalyzer.isIdentificationNumber(mInn)){
+                var mPaperNumber = text.substring(5, 14);
+                var mInn = text.substring(15, 29);
+                if (passportDataAnalyzer.isIdentificationNumber(mInn)) {
                   passportDataAnalyzer.addIdentificationNumber(mInn);
                 }
                 if (passportDataAnalyzer.isPassportNumber(mPaperNumber)) {

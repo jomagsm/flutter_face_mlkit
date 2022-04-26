@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:drawing_animation/drawing_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/face_detector_painter.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
@@ -234,7 +234,7 @@ class _LivenessComponentState extends State<LivenessComponent>
           var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
 
           await Future.delayed(Duration(milliseconds: 300));
-          await _controller!.takePicture(imgPath);
+          await _controller!.takePicture();
           LoadingOverlay.showLoadingOverlay(context);
           var compressedFile = await FlutterImageCompress.compressAndGetFile(
               imgPath, imgCopressedPath,
@@ -361,7 +361,7 @@ class _LivenessComponentState extends State<LivenessComponent>
       ScannerUtils.detect(
         image: image,
         detectInImage: _faceDetector!.processImage,
-        imageRotation: _cameraDescription.sensorOrientation!,
+        imageRotation: _cameraDescription.sensorOrientation,
       ).then(
         (dynamic results) {
           if (!mounted) return;
