@@ -53,7 +53,7 @@ class LivenessComponent extends StatefulWidget {
 }
 
 class _LivenessComponentState extends State<LivenessComponent>
-    with SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final _keyBuilder = GlobalKey();
   Future<void>? _initializeControllerFuture;
   CameraController? _controller;
@@ -403,6 +403,23 @@ class _LivenessComponentState extends State<LivenessComponent>
     });
     _successImageAnimationController?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = _controller;
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      _faceDetector?.close().then((_) {
+        _controller?.dispose();
+      });
+      _successImageAnimationController?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      initState();
+    }
   }
 
   @override
