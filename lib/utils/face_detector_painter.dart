@@ -1,7 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class FaceDetectorPainter extends CustomPainter {
@@ -17,8 +15,6 @@ class FaceDetectorPainter extends CustomPainter {
     final double scaleX = size.width / absoluteImageSize.width;
     final double scaleY = size.height / absoluteImageSize.height;
 
-    print(size);
-
     var faceRect = Rect.fromLTRB(
       faces!.boundingBox.left * scaleX,
       faces!.boundingBox.top * scaleY,
@@ -33,8 +29,6 @@ class FaceDetectorPainter extends CustomPainter {
 
     Path _path = Path()..addOval(oval!);
 
-    
-
     if (faceRect.left > oval!.left &&
         faceRect.top > oval!.top &&
         faceRect.bottom < oval!.bottom &&
@@ -46,7 +40,6 @@ class FaceDetectorPainter extends CustomPainter {
     }
 
     canvas.drawPath(_path, paint);
-
   }
 
   @override

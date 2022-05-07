@@ -10,9 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  camera: ^0.9.4+21
   rxdart: ^0.27.1
   path_provider: ^2.0.2
-  google_ml_vision: ^0.0.6
+  google_mlkit_face_detection: ^0.3.0
+  google_mlkit_text_recognition: ^0.3.0
   path_drawing: ^0.5.1
   drawing_animation:
     git:
@@ -20,7 +22,6 @@ dependencies:
       ref: feature/null-safety-migration
 
   flutter_image_compress: ^1.0.0
-  flutter_better_camera: ^1.0.2+1
 
 dev_dependencies:
   flutter_test:

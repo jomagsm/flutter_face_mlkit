@@ -1,14 +1,8 @@
-// Copyright 2019 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
-
+import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_better_camera/camera.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:flutter/material.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class ScannerUtils {
   ScannerUtils._();
@@ -23,13 +17,14 @@ class ScannerUtils {
 
   static Future<dynamic> detect({
     required CameraImage image,
-    required Future<dynamic> Function(GoogleVisionImage image) detectInImage,
+    required Future<dynamic> Function(InputImage image) detectInImage,
     required int imageRotation,
   }) async {
     return detectInImage(
-      GoogleVisionImage.fromBytes(
-        _concatenatePlanes(image.planes),
-        _buildMetaData(image, _rotationIntToImageRotation(imageRotation)),
+      InputImage.fromBytes(
+        bytes: _concatenatePlanes(image.planes),
+        inputImageData:
+            _buildMetaData(image, _rotationIntToImageRotation(imageRotation)),
       ),
     );
   }
@@ -37,23 +32,26 @@ class ScannerUtils {
   static Uint8List _concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
     for (Plane plane in planes) {
-      allBytes.putUint8List(plane.bytes!);
+      allBytes.putUint8List(plane.bytes);
     }
     return allBytes.done().buffer.asUint8List();
   }
 
-  static GoogleVisionImageMetadata _buildMetaData(
+  static InputImageData _buildMetaData(
     CameraImage image,
-    ImageRotation rotation,
+    InputImageRotation rotation,
   ) {
-    return GoogleVisionImageMetadata(
-      rawFormat: image.format.raw,
-      size: Size(image.width!.toDouble(), image.height!.toDouble()),
-      rotation: rotation,
+    final InputImageFormat inputImageFormat =
+        InputImageFormatValue.fromRawValue(image.format.raw) ??
+            InputImageFormat.nv21;
+    return InputImageData(
+      inputImageFormat: inputImageFormat,
+      size: Size(image.width.toDouble(), image.height.toDouble()),
+      imageRotation: rotation,
       planeData: image.planes.map(
         (Plane plane) {
-          return GoogleVisionImagePlaneMetadata(
-            bytesPerRow: plane.bytesPerRow!,
+          return InputImagePlaneMetadata(
+            bytesPerRow: plane.bytesPerRow,
             height: plane.height,
             width: plane.width,
           );
@@ -62,17 +60,17 @@ class ScannerUtils {
     );
   }
 
-  static ImageRotation _rotationIntToImageRotation(int rotation) {
+  static InputImageRotation _rotationIntToImageRotation(int rotation) {
     switch (rotation) {
       case 0:
-        return ImageRotation.rotation0;
+        return InputImageRotation.rotation0deg;
       case 90:
-        return ImageRotation.rotation90;
+        return InputImageRotation.rotation90deg;
       case 180:
-        return ImageRotation.rotation180;
+        return InputImageRotation.rotation180deg;
       default:
         assert(rotation == 270);
-        return ImageRotation.rotation270;
+        return InputImageRotation.rotation270deg;
     }
   }
 }

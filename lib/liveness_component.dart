@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:drawing_animation/drawing_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_better_camera/camera.dart';
 import 'package:flutter_face_mlkit/utils/face_detector_painter.dart';
 import 'package:flutter_face_mlkit/utils/loading_overlay.dart';
 import 'package:flutter_face_mlkit/utils/oval_clipper.dart';
 import 'package:flutter_face_mlkit/utils/scanner_utils.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum FaceStepType {
@@ -37,7 +37,7 @@ class LivenessComponent extends StatefulWidget {
   final Widget Function(BuildContext)? footerBuilder;
   final Widget Function(BuildContext)? headerBuilder;
 
-  LivenessComponent(
+  const LivenessComponent(
       {Key? key,
       this.ovalRect,
       this.livenessType = FaceLivenessType.FACE_ANGLE_LEFT,
@@ -54,7 +54,7 @@ class LivenessComponent extends StatefulWidget {
 
 class _LivenessComponentState extends State<LivenessComponent>
     with SingleTickerProviderStateMixin {
-  GlobalKey _keyBuilder = GlobalKey();
+  final _keyBuilder = GlobalKey();
   Future<void>? _initializeControllerFuture;
   CameraController? _controller;
   int? _faceId;
@@ -97,7 +97,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     if (widget.footerBuilder != null) {
       return widget.footerBuilder!(context);
     } else {
-      return SizedBox(height: 0, width: 0);
+      return const SizedBox(height: 0, width: 0);
     }
   }
 
@@ -105,7 +105,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     if (widget.headerBuilder != null) {
       return widget.headerBuilder!(context);
     } else {
-      return SizedBox(height: 0, width: 0);
+      return const SizedBox(height: 0, width: 0);
     }
   }
 
@@ -122,7 +122,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     var _faceAngle = face.headEulerAngleY!;
 
     double _facePercentage = _faceAngle * 100.0 / 50.0;
-    print('Face angle percentage = $_facePercentage');
+    debugPrint('Face angle percentage = $_facePercentage');
 
     RenderBox box = _keyBuilder.currentContext!.findRenderObject() as RenderBox;
     final Size size = box.size;
@@ -142,8 +142,8 @@ class _LivenessComponentState extends State<LivenessComponent>
     if (_facePercentage < -30.0 || _facePercentage > 30.0) {
       return false;
     }
-    print('-------------------$_facePercentage----------------');
-    print('FACE CONFIRMING = ' +
+    debugPrint('-------------------$_facePercentage----------------');
+    debugPrint('FACE CONFIRMING = ' +
         faceRect.toString() +
         ' - ' +
         _customOvalRect.toString());
@@ -171,7 +171,7 @@ class _LivenessComponentState extends State<LivenessComponent>
     var _faceEyeLeft = face.leftEyeOpenProbability;
     var _faceEyeRight = face.rightEyeOpenProbability;
 
-    print(
+    debugPrint(
         '_FACE X = $_faceAngleX; _FACE Z = $_faceAngleY; _FACE LEYE = $_faceEyeLeft; _FACE_REYE = $_faceEyeRight;');
 
     double? _faceAngle = 0.0;
@@ -232,17 +232,19 @@ class _LivenessComponentState extends State<LivenessComponent>
           var rStr = DateTime.now().microsecondsSinceEpoch.toString();
           var imgPath = '${tmpDir.path}/${rStr}_selfie.jpg';
           var imgCopressedPath = '${tmpDir.path}/${rStr}_compressed_selfie.jpg';
-
-          await Future.delayed(Duration(milliseconds: 300));
-          await _controller!.takePicture(imgPath);
+          await Future.delayed(const Duration(milliseconds: 300));
+          final _temp = await _controller!.takePicture();
+          await _temp.saveTo(imgPath);
           LoadingOverlay.showLoadingOverlay(context);
           var compressedFile = await FlutterImageCompress.compressAndGetFile(
               imgPath, imgCopressedPath,
               quality: 75);
-
+          imageCache!.clearLiveImages();
+          imageCache!.clear();
+          await _controller?.dispose();
           try {
             var faces = await _faceDetector!
-                .processImage(GoogleVisionImage.fromFile(compressedFile!));
+                .processImage(InputImage.fromFile(compressedFile!));
             var faceForCheck = faces.first;
 
             if (_isEyesOpen(faceForCheck) &&
@@ -268,7 +270,7 @@ class _LivenessComponentState extends State<LivenessComponent>
           LoadingOverlay.removeLoadingOverlay();
         } catch (err) {
           LoadingOverlay.removeLoadingOverlay();
-          print(err);
+          debugPrint(err.toString());
           _isTakePhoto = false;
           _initializeCamera();
         }
@@ -277,20 +279,20 @@ class _LivenessComponentState extends State<LivenessComponent>
   }
 
   bool _isEyesClose(Face face) {
-    print(
+    debugPrint(
         '\nL | R eye opened probability = ${face.leftEyeOpenProbability} | ${face.rightEyeOpenProbability}\n');
     if (face.leftEyeOpenProbability == null ||
         face.rightEyeOpenProbability == null) return false;
     return (face.rightEyeOpenProbability! < 0.05 &&
         face.leftEyeOpenProbability! < 0.05);
   }
+
   bool _isEyesOpen(Face face) {
     if (face.leftEyeOpenProbability == null ||
         face.rightEyeOpenProbability == null) return false;
     return (face.rightEyeOpenProbability! > 0.55 &&
         face.leftEyeOpenProbability! > 0.55);
   }
-
 
   Future<void> _faceProcessing(Face face) async {
     switch (_faceStepType) {
@@ -317,21 +319,21 @@ class _LivenessComponentState extends State<LivenessComponent>
   void initState() {
     super.initState();
 
-    _customOvalRect = widget.ovalRect ?? Rect.fromLTWH(50, 50, 250, 350);
+    _customOvalRect = widget.ovalRect ?? const Rect.fromLTWH(50, 50, 250, 350);
     _ovalPath = Path()..addOval(_customOvalRect!);
     _ovalPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
       ..color = Colors.green;
-    _successImageAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 250));
+    _successImageAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 250));
     _successImageAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
             parent: _successImageAnimationController!,
             curve: Curves.slowMiddle));
 
-    _faceDetector = GoogleVision.instance.faceDetector(
-      FaceDetectorOptions(
+    _faceDetector = FaceDetector(
+      options: FaceDetectorOptions(
         enableTracking: true,
         enableClassification: true,
       ),
@@ -345,13 +347,15 @@ class _LivenessComponentState extends State<LivenessComponent>
         await ScannerUtils.getCamera(CameraLensDirection.front);
 
     _controller = CameraController(_cameraDescription,
-        Platform.isIOS ? ResolutionPreset.medium : ResolutionPreset.medium);
+        Platform.isIOS ? ResolutionPreset.low : ResolutionPreset.high,
+        imageFormatGroup: ImageFormatGroup.yuv420, enableAudio: false);
     _initializeControllerFuture = _controller!.initialize();
     if (!mounted) {
       return;
     }
     await _initializeControllerFuture;
-
+    imageCache!.clearLiveImages();
+    imageCache!.clear();
     await _controller!.startImageStream((CameraImage image) {
       if (!mounted) return;
       if (_isDetecting) return;
@@ -361,7 +365,7 @@ class _LivenessComponentState extends State<LivenessComponent>
       ScannerUtils.detect(
         image: image,
         detectInImage: _faceDetector!.processImage,
-        imageRotation: _cameraDescription.sensorOrientation!,
+        imageRotation: _cameraDescription.sensorOrientation,
       ).then(
         (dynamic results) {
           if (!mounted) return;
@@ -375,8 +379,8 @@ class _LivenessComponentState extends State<LivenessComponent>
                 _faceId = face.trackingId!;
               } else if (_faceId != face.trackingId) {
                 setState(() {
-                  print(
-                      '\n\nTRACKING ID = ${face.trackingId}\nFACE ID = ${_faceId}');
+                  debugPrint(
+                      '\n\nTRACKING ID = ${face.trackingId}\nFACE ID = $_faceId');
                   _faceId = null;
                   _faceStepType = FaceStepType.FACE_STEP_LIVENESS;
                   _onStepChange(_faceStepType);
@@ -406,105 +410,106 @@ class _LivenessComponentState extends State<LivenessComponent>
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     return Container(
-        color: Colors.black,
-        child: FutureBuilder<void>(
-          key: _keyBuilder,
-          future: _initializeControllerFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                _controller?.value.isInitialized == true) {
-              final Size imageSize = Size(
-                _controller!.value.previewSize!.height,
-                _controller!.value.previewSize!.width,
-              );
-              return Stack(
-                children: <Widget>[
-                  Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: CameraPreview(_controller!),
-                    ),
+      color: Colors.black,
+      child: FutureBuilder<void>(
+        key: _keyBuilder,
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              _controller?.value.isInitialized == true) {
+            final Size imageSize = Size(
+              _controller!.value.previewSize!.height,
+              _controller!.value.previewSize!.width,
+            );
+            return Stack(
+              children: <Widget>[
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: _controller!.value.previewSize!.height /
+                        _controller!.value.previewSize!.width,
+                    child: CameraPreview(_controller!),
                   ),
-                  _isShowOvalArea()
-                      ? CustomPaint(
-                          foregroundPainter: FaceDetectorPainter(
-                              imageSize, _face, _customOvalRect),
-                          child: ClipPath(
-                              clipper: OvalClipper(_customOvalRect),
-                              child: Transform.scale(
-                                  scale: _controller!.value.aspectRatio /
-                                      deviceRatio,
-                                  child: Center(
-                                      child:
-                                          Container(color: Colors.black54)))))
-                      : SizedBox(height: 0, width: 0),
-                  Positioned(
-                      top: _customOvalRect!.bottom / 0.9,
-                      left: 0,
-                      right: 0,
-                      child: Container(child: _footerBlockBuilder(context))),
-                  _isShowAnimationArea()
-                      ? AnimatedBuilder(
-                          animation: _successImageAnimationController!,
-                          builder: (context, child) {
-                            return Positioned(
-                                child: Opacity(
-                                    opacity: _successImageAnimation == null
-                                        ? 0.0
-                                        : _successImageAnimation!.value,
-                                    child: Icon(
-                                      Icons.check_circle_outline,
-                                      color: Colors.green,
-                                      size: 52,
-                                    )),
-                                top: _customOvalRect!.center.dy - 26,
-                                left: _customOvalRect!.center.dx - 26);
-                          })
-                      : SizedBox(height: 0, width: 0),
-                  _isShowAnimationArea()
-                      ? Positioned(
-                          top: 0,
-                          left: 0,
-                          child: AnimatedDrawing.paths(
-                            <Path>[_ovalPath!],
-                            paints: <Paint>[_ovalPaint!],
-                            animationOrder: PathOrder.byLength(),
-                            lineAnimation: LineAnimation.oneByOne,
-                            animationCurve: Curves.easeInQuad,
-                            scaleToViewport: false,
-                            width: _customOvalRect!.width,
-                            height: _customOvalRect!.height,
-                            duration: Duration(milliseconds: 400),
-                            run: _isAnimRun,
-                            onFinish: () => setState(() => _isAnimRun = false),
-                          ),
-                        )
-                      : SizedBox(height: 0, width: 0),
-                  Positioned(
-                    top: _customOvalRect!.top * 0.1,
+                ),
+                _isShowOvalArea()
+                    ? CustomPaint(
+                        foregroundPainter: FaceDetectorPainter(
+                            imageSize, _face, _customOvalRect),
+                        child: ClipPath(
+                            clipper: OvalClipper(_customOvalRect),
+                            child: Transform.scale(
+                                scale: _controller!.value.aspectRatio /
+                                    deviceRatio,
+                                child: Center(
+                                    child: Container(color: Colors.black54)))))
+                    : const SizedBox(height: 0, width: 0),
+                Positioned(
+                    top: _customOvalRect!.bottom / 0.9,
                     left: 0,
                     right: 0,
-                    bottom: _customOvalRect!.bottom,
-                    child: _headerBlockBuilder(context),
+                    child: Container(child: _footerBlockBuilder(context))),
+                _isShowAnimationArea()
+                    ? AnimatedBuilder(
+                        animation: _successImageAnimationController!,
+                        builder: (context, child) {
+                          return Positioned(
+                              child: Opacity(
+                                  opacity: _successImageAnimation == null
+                                      ? 0.0
+                                      : _successImageAnimation!.value,
+                                  child: const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.green,
+                                    size: 52,
+                                  )),
+                              top: _customOvalRect!.center.dy - 26,
+                              left: _customOvalRect!.center.dx - 26);
+                        })
+                    : const SizedBox(height: 0, width: 0),
+                _isShowAnimationArea()
+                    ? Positioned(
+                        top: 0,
+                        left: 0,
+                        child: AnimatedDrawing.paths(
+                          <Path>[_ovalPath!],
+                          paints: <Paint>[_ovalPaint!],
+                          animationOrder: PathOrder.byLength(),
+                          lineAnimation: LineAnimation.oneByOne,
+                          animationCurve: Curves.easeInQuad,
+                          scaleToViewport: false,
+                          width: _customOvalRect!.width,
+                          height: _customOvalRect!.height,
+                          duration: const Duration(milliseconds: 400),
+                          run: _isAnimRun,
+                          onFinish: () => setState(() => _isAnimRun = false),
+                        ),
+                      )
+                    : const SizedBox(height: 0, width: 0),
+                Positioned(
+                  top: _customOvalRect!.top * 0.1,
+                  left: 0,
+                  right: 0,
+                  bottom: _customOvalRect!.bottom,
+                  child: _headerBlockBuilder(context),
+                ),
+              ],
+            );
+          }
+          if (snapshot.hasError) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Center(
+                  child: Text(
+                    'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
+                    textAlign: TextAlign.center,
                   ),
-                ],
-              );
-            }
-            if (snapshot.hasError) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      'Произошла ошибка при инициализации камеры. Возможно вы не дали нужные разрешения!',
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                ],
-              );
-            }
-            return SizedBox(height: 0, width: 0);
-          },
-        ));
+                )
+              ],
+            );
+          }
+          return const SizedBox(height: 0, width: 0);
+        },
+      ),
+    );
   }
 }

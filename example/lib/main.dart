@@ -195,20 +195,21 @@ class _CameraFaceScreenState extends State<CameraFaceScreen> {
       appBar: AppBar(
         title: Text('MakeCapture'),
       ),
-      body: SelfieAutocapture(
-        ovalRect: ovalRect,
-        infoBlockBuilder: (BuildContext context) => Center(
-            child: Text(
-          'Поместите лицо в овал',
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        )),
-        onCapturePhoto: (path) {
-          if (path != null) {
-            print(path);
-            Navigator.pop(context, path);
-          }
-        },
-      ),
+      body: SizedBox()
+      // SelfieAutocapture(
+      //   ovalRect: ovalRect,
+      //   infoBlockBuilder: (BuildContext context) => Center(
+      //       child: Text(
+      //     'Поместите лицо в овал',
+      //     style: TextStyle(fontSize: 18, color: Colors.white),
+      //   )),
+      //   onCapturePhoto: (path) {
+      //     if (path != null) {
+      //       print(path);
+      //       Navigator.pop(context, path);
+      //     }
+      //   },
+      // ),
     );
   }
 }
